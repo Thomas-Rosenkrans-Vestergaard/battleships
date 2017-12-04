@@ -1,5 +1,6 @@
 package r1;
 
+import battleship.interfaces.Position;
 import java.util.Arrays;
 
 public class HeatMap {

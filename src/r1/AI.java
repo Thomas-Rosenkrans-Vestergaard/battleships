@@ -80,7 +80,7 @@ public class AI implements BattleshipsPlayer {
     @Override
     public void incoming(Position pos) {
         try {
-            this.incommingHeatMap.put(r1.Position.at(pos.x, pos.y));
+            this.incommingHeatMap.put(pos);
         } catch (HeatMapOutOfBoundsException e) {
             throw new IllegalStateException(e);
         }
