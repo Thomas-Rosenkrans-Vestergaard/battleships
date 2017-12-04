@@ -22,7 +22,7 @@ public class R1 implements PlayerFactory<BattleshipsPlayer>
     @Override
     public BattleshipsPlayer getNewInstance()
     {
-        return new RandomPlayer();
+        return new AI();
     }
 
     @Override
