@@ -1,11 +1,9 @@
-package r1.placement;
+package r1.shooting;
 
-import battleship.interfaces.Board;
 import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
-import r1.HeatMapOutOfBoundsException;
 
-public interface Placer {
+public interface Shooter {
 
     /**
      * Called in the beginning of each match to inform about the number of
@@ -19,32 +17,28 @@ public interface Placer {
     public void startMatch(int rounds, Fleet ships, int sizeX, int sizeY);
 
     /**
-     * The method called when its time for the AI to place ships on the board
-     * (at the beginning of each round).
+     * Called by the Game application to get the Position of your shot.
+     * hitFeedBack(...) is called right after this method.
      *
-     * The Ship object to be placed MUST be taken from the Fleet given (do not
-     * create your own Ship objects!).
+     * @param enemyShips Fleet the enemy's ships. Compare this to the Fleet
+     * supplied in the hitFeedBack(...) method to see if you have sunk any
+     * ships.
      *
-     * A ship is placed by calling the board.placeShip(..., Ship ship, ...) for
-     * each ship in the fleet (see board interface for details on placeShip()).
-     *
-     * A player is not required to place all the ships. Ships placed outside the
-     * board or on top of each other are wrecked.
-     *
-     * @param fleet Fleet all the ships that a player should place.
-     * @param board Board the board were the ships must be placed.
+     * @return Position of you next shot.
      */
-    public void placeShips(Fleet fleet, Board board);
+    public Position getFireCoordinates(Fleet enemyShips);
 
     /**
-     * Called every time the enemy has fired a shot.
+     * Called right after getFireCoordinates(...) to let your AI know if you hit
+     * something or not.
      *
-     * The purpose of this method is to allow the AI to react to the enemy's
-     * incoming fire and place his/her ships differently next round.
+     * Compare the number of ships in the enemyShips with that given in
+     * getFireCoordinates in order to see if you sunk a ship.
      *
-     * @param pos Position of the enemy's shot
+     * @param hit boolean is true if your last shot hit a ship. False otherwise.
+     * @param enemyShips Fleet the enemy's ships.
      */
-    public void incoming(Position pos);
+    public void hitFeedBack(boolean hit, Fleet enemyShips);
 
     /**
      * Called at the beginning of each round.

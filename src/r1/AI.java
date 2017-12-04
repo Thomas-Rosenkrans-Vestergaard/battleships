@@ -11,6 +11,8 @@ import battleship.interfaces.Board;
 import battleship.interfaces.Ship;
 import java.util.Arrays;
 import java.util.Random;
+import r1.placement.Placer;
+import r1.shooting.Shooter;
 
 /**
  *
@@ -18,16 +20,15 @@ import java.util.Random;
  */
 public class AI implements BattleshipsPlayer {
 
-    private int sizeX;
-    private int sizeY;
-    private HeatMap incommingHeatMap;
-    private HeatMap fireHeatMap;
-    private Fleet originalFleet;
+    private Placer placer;
+    private Shooter shooter;
 
     /**
      * Creates a new {@link AI}.
      */
-    public AI() {
+    public AI(Placer placer, Shooter shooter) {
+        this.placer = placer;
+        this.shooter = shooter;
     }
 
     /**
@@ -41,11 +42,8 @@ public class AI implements BattleshipsPlayer {
      */
     @Override
     public void startMatch(int rounds, Fleet ships, int sizeX, int sizeY) {
-        this.sizeX = sizeX;
-        this.sizeY = sizeY;
-        this.incommingHeatMap = new HeatMap(sizeX, sizeY);
-        this.fireHeatMap = new HeatMap(sizeX, sizeY);
-        this.originalFleet = ships;
+        placer.startMatch(rounds, ships, sizeX, sizeY);
+        shooter.startMatch(rounds, ships, sizeX, sizeY);
     }
 
     /**
@@ -66,7 +64,7 @@ public class AI implements BattleshipsPlayer {
      */
     @Override
     public void placeShips(Fleet fleet, Board board) {
-
+        placer.placeShips(fleet, board);
     }
 
     /**
@@ -79,11 +77,7 @@ public class AI implements BattleshipsPlayer {
      */
     @Override
     public void incoming(Position pos) {
-        try {
-            this.incommingHeatMap.put(pos);
-        } catch (HeatMapOutOfBoundsException e) {
-            throw new IllegalStateException(e);
-        }
+        placer.incoming(pos);
     }
 
     /**
@@ -98,7 +92,7 @@ public class AI implements BattleshipsPlayer {
      */
     @Override
     public Position getFireCoordinates(Fleet enemyShips) {
-        return new Position(0, 0);
+        return shooter.getFireCoordinates(enemyShips);
     }
 
     /**
@@ -113,7 +107,7 @@ public class AI implements BattleshipsPlayer {
      */
     @Override
     public void hitFeedBack(boolean hit, Fleet enemyShips) {
-        //Do nothing
+        shooter.hitFeedBack(hit, enemyShips);
     }
 
     /**
@@ -123,7 +117,8 @@ public class AI implements BattleshipsPlayer {
      */
     @Override
     public void startRound(int round) {
-
+        placer.startRound(round);
+        shooter.startRound(round);
     }
 
     /**
@@ -138,7 +133,8 @@ public class AI implements BattleshipsPlayer {
      */
     @Override
     public void endRound(int round, int points, int enemyPoints) {
-        //Do nothing
+        placer.endRound(round, points, enemyPoints);
+        shooter.endRound(round, points, enemyPoints);
     }
 
     /**
@@ -151,6 +147,7 @@ public class AI implements BattleshipsPlayer {
      */
     @Override
     public void endMatch(int won, int lost, int draw) {
-        //Do nothing
+        placer.endMatch(won, lost, draw);
+        shooter.endMatch(won, lost, draw);
     }
 }
