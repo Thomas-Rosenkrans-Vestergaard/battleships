@@ -25,12 +25,11 @@ public class PlacerImpl implements Placer
 
         int numberOfShips = fleet.getNumberOfShips();
 
-        for (int i = 1; i <= numberOfShips; i++)
+        for (int i = 0; i <= numberOfShips; i++)
         {
             Ship ship = fleet.getShip(i);
-            ship.size();
             Position pstn = new Position(0, i);
-            board.placeShip(pstn, ship, true);
+            board.placeShip(pstn, ship, false);
              
             System.out.println(pstn.toString());
         }

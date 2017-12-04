@@ -21,10 +21,6 @@ public class ShooterState {
         this.hits = hits;
     }
 
-    ShooterState(int rounds, Fleet ships, int sizeX, int sizeY) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
     public void addShot(Position position) {
         this.shots.add(position);
     }
