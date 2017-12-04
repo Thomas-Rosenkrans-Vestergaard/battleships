@@ -9,6 +9,7 @@ import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
 import battleship.interfaces.Board;
 import battleship.interfaces.Ship;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -97,9 +98,7 @@ public class AI implements BattleshipsPlayer {
      */
     @Override
     public Position getFireCoordinates(Fleet enemyShips) {
-        int x = rnd.nextInt(sizeX);
-        int y = rnd.nextInt(sizeY);
-        return new Position(x, y);
+        return new Position(0, 0);
     }
 
     /**

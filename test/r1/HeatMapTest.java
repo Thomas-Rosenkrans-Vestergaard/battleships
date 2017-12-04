@@ -25,7 +25,6 @@ public class HeatMapTest {
         HeatMap map = new HeatMap(4, 6, 5);
         assertEquals(4, map.getSizeX());
         assertEquals(6, map.getSizeY());
-        assertEquals(5, map.getDefaultValue());
         assertEquals(5, map.get(Position.at(0, 0)));
         map.put(Position.at(0, 0));
         assertEquals(6, map.get(Position.at(0, 0)));
@@ -41,7 +40,6 @@ public class HeatMapTest {
         HeatMap map = new HeatMap(4, 6, 5, 2);
         assertEquals(4, map.getSizeX());
         assertEquals(6, map.getSizeY());
-        assertEquals(5, map.getDefaultValue());
         assertEquals(5, map.get(Position.at(0, 0)));
         map.put(Position.at(0, 0));
         assertEquals(7, map.get(Position.at(0, 0)));

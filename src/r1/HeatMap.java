@@ -1,5 +1,7 @@
 package r1;
 
+import java.util.Arrays;
+
 public class HeatMap {
 
     /**
@@ -11,11 +13,6 @@ public class HeatMap {
      * The vertical size of the {@link HeatMap}.
      */
     private final int sizeY;
-
-    /**
-     * The default value to set the values of the {@link HeatMap} to.
-     */
-    private final int defaultValue;
 
     /**
      * The amount incremented when the {@link HeatMap#put(r1.Position)} method
@@ -74,10 +71,32 @@ public class HeatMap {
 
         this.sizeX = sizeX;
         this.sizeY = sizeY;
-        this.defaultValue = defaultValue;
         this.increment = increment;
         this.map = new int[sizeX][sizeY];
         reset(defaultValue);
+    }
+
+    /**
+     * Creates a new {@link HeatMap} using a provided map.
+     *
+     * @param map The map.
+     */
+    public HeatMap(int[][] map) {
+        this(map, 1);
+    }
+
+    /**
+     * *
+     * Creates a new {@link HeatMap} using a provided map.
+     *
+     * @param map The map.
+     * @param increment The increment.
+     */
+    public HeatMap(int[][] map, int increment) {
+        this.map = map;
+        this.increment = increment;
+        this.sizeX = map.length;
+        this.sizeY = map[0].length;
     }
 
     /**
@@ -138,12 +157,5 @@ public class HeatMap {
      */
     public int getSizeY() {
         return sizeY;
-    }
-
-    /**
-     * The default value to set the values of the {@link HeatMap} to.
-     */
-    public int getDefaultValue() {
-        return defaultValue;
     }
 }
