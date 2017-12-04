@@ -25,7 +25,7 @@ public class HeatMap {
      * The internal storage of the {@link HeatMap}.
      */
     private int[][] map;
-
+    
     /**
      * Creates a new {@link HeatMap}. The default value of the positions in the
      * {@link HeatMap} are set the zero. The increment value is set to one.

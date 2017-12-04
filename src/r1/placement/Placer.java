@@ -3,7 +3,6 @@ package r1.placement;
 import battleship.interfaces.Board;
 import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
-import r1.HeatMapOutOfBoundsException;
 
 public interface Placer {
 
