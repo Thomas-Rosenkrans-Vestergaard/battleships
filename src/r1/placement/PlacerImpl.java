@@ -41,7 +41,7 @@ public class PlacerImpl implements Placer
     {
         try
         {
-            incomingHeatMap.put(pos);
+            incomingHeatMap.increment(pos);
         } catch (HeatMapOutOfBoundsException ex)
         {
             Logger.getLogger(PlacerImpl.class.getName()).log(Level.SEVERE, null, ex);

@@ -1,6 +1,10 @@
 package r1;
 
 import battleship.interfaces.Position;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class HeatMap {
 
@@ -15,15 +19,25 @@ public class HeatMap {
     private final int sizeY;
 
     /**
+     * The default value of the values in the {@link HeatMap}.
+     */
+    private final int defaultValue;
+
+    /**
      * The amount incremented when the {@link HeatMap#put(r1.Position)} method
      * is called.
      */
     private final int increment;
-    
+
     /**
      * The internal storage of the {@link HeatMap}.
      */
-    private int[][] map;
+    private List<Map<Integer, Integer>> maps;
+
+    /**
+     * The map currently being edited.
+     */
+    private int currentIndex = -1;
 
     /**
      * Creates a new {@link HeatMap}. The default value of the positions in the
@@ -33,7 +47,6 @@ public class HeatMap {
      * @param sizeY The vertical size of the {@link HeatMap}.
      */
     public HeatMap(int sizeX, int sizeY) {
-
         this(sizeX, sizeY, 0, 1);
     }
 
@@ -71,74 +84,156 @@ public class HeatMap {
 
         this.sizeX = sizeX;
         this.sizeY = sizeY;
+        this.defaultValue = defaultValue;
         this.increment = increment;
-        this.map = new int[sizeX][sizeY];
-        reset(defaultValue);
+        this.maps = new ArrayList<>();
     }
 
     /**
-     * Creates a new {@link HeatMap} using a provided map.
+     * Merges and returns all the versions of the of the {@link HeatMap}.
      *
-     * @param map The map.
+     * @return The merged versions of the {@link HeatMap}.
      */
-    public HeatMap(int[][] map) {
-        this(map, 1);
+    public Map<Integer, Integer> get() {
+        return mergeMaps(0, maps.size());
     }
 
     /**
-     * *
-     * Creates a new {@link HeatMap} using a provided map.
+     * Returns the {@link HeatMap} with the provided version number.
      *
-     * @param map The map.
-     * @param increment The increment.
+     * @param version The version number. The version number is zero-indexed.
+     * @return The {@link HeatMap}.
      */
-    public HeatMap(int[][] map, int increment) {
-        this.map = map;
-        this.increment = increment;
-        this.sizeX = map.length;
-        this.sizeY = map[0].length;
+    public Map<Integer, Integer> get(int version) {
+        return maps.get(version);
     }
 
     /**
-     * Increments the {@link HeatMap} at the provided position.
+     * Merges and returns all the versions between <code>from</code> and
+     * <code>to</code>.
      *
-     * @param position The posiiton
-     * @throws HeatMapOutOfBoundsException
+     * @param from The version to start at. The version number is zero indexed.
+     * @param to The version to end at (not inclusive). The version number is
+     * zero indexed.
+     * @return The merged {@link HeatMap}. The combined maps from
+     * <code>from</code> and up to (but not including) <code>to</code>.
      */
-    public void put(Position position) throws HeatMapOutOfBoundsException {
-        try {
-            map[position.x][position.y] += increment;
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw new HeatMapOutOfBoundsException();
-        }
-    }
-
-    public int get(Position position) throws HeatMapOutOfBoundsException {
-        try {
-            return map[position.x][position.y];
-        } catch (ArrayIndexOutOfBoundsException e) {
-            throw new HeatMapOutOfBoundsException();
-        }
+    public Map<Integer, Integer> get(int from, int to) {
+        return mergeMaps(from, to);
     }
 
     /**
-     * Resets the values in the {@link HeatMap} to the provided value.
+     * Returns the first version of the {@link HeatMap}.
      *
-     * @param to The value to reset the {@link HeatMap} to.
+     * @return The first version of the {@link HeatMap}.
      */
-    public void reset(int to) {
-        for (int x = 0; x < sizeX; x++) {
-            for (int y = 0; y < sizeY; y++) {
-                map[x][y] = to;
+    public Map<Integer, Integer> getFirst() {
+        return maps.get(0);
+    }
+
+    /**
+     * Merges and returns the first <code>n</code> versions of the
+     * {@link HeatMap}.
+     *
+     * @param n The number of versions to merge and return.
+     * @return The merged versions.
+     */
+    public Map<Integer, Integer> getFirst(int n) {
+        return mergeMaps(0, n);
+    }
+
+    /**
+     * Returns the last version of the {@link HeatMap}.
+     *
+     * @return The last version of the {@link HeatMap}.
+     */
+    public Map<Integer, Integer> getLast() {
+        return maps.get(currentIndex);
+    }
+
+    /**
+     * Merges and returns the last <code>n</code> versions of the
+     * {@link HeatMap}.
+     *
+     * @param n The number of versions to merge and return.
+     * @return The merged versions.
+     */
+    public Map<Integer, Integer> getLast(int n) {
+        return mergeMaps(currentIndex, currentIndex + 1);
+    }
+
+    /**
+     * Creates a new version of the {@link HeatMap}.
+     *
+     * @return The index identifying the new version of the {@link HeatMap}. The
+     * version indices are zero-indexed.
+     */
+    public int version() {
+        this.currentIndex++;
+        maps.add(createMap());
+        return this.currentIndex;
+    }
+
+    /**
+     * Merges and returns all the versions between <code>from</code> and
+     * <code>to</code>.
+     *
+     * @param from The version to start at. The version number is zero indexed.
+     * @param to The version to end at (not inclusive). The version number is
+     * zero indexed.
+     * @return The merged {@link HeatMap}. The combined maps from
+     * <code>from</code> and up to (but not including) <code>to</code>.
+     */
+    private Map<Integer, Integer> mergeMaps(int from, int to) {
+        Map<Integer, Integer> result = new HashMap<>();
+        for (int x = from; x < maps.size() && x < to - 1; x++) {
+            for (int index = 0; index < sizeX * sizeY; index++) {
+                result.put(index, result.getOrDefault(index, 0) + maps.get(x).get(index));
             }
         }
+
+        return result;
     }
 
     /**
-     * Resets the values in the {@link HeatMap} to zero.
+     * Creates a new map filled with the default value of the {@link HeatMap}.
+     *
+     * @return The new map.
      */
-    public void reset() {
-        reset(0);
+    private Map<Integer, Integer> createMap() {
+        Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+        for (int i = 0; i < sizeX * sizeY; i++) {
+            map.put(i, defaultValue);
+        }
+
+        return map;
+    }
+
+    /**
+     * Increments the current version of the {@link HeatMap} at the provided
+     * position.
+     *
+     * @param position The position
+     * @throws HeatMapOutOfBoundsException
+     */
+    public void increment(Position position) throws HeatMapOutOfBoundsException {
+        int index = position.y * sizeX + position.x;
+        Map<Integer, Integer> currentMap = maps.get(currentIndex);
+        if (currentMap == null) {
+            throw new HeatMapOutOfBoundsException();
+        }
+        currentMap.put(index, currentMap.get(index) + increment);
+    }
+
+    /**
+     * Returns an index using the provided coordinates.
+     *
+     * @param x The x component.
+     * @param y The y component.
+     * @return The index.
+     */
+    public int toIndex(int x, int y) {
+        return y * sizeX + x;
     }
 
     /**

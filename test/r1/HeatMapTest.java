@@ -1,123 +1,187 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package r1;
 
 import battleship.interfaces.Position;
+import java.util.Map;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
+/**
+ *
+ * @author Skole
+ */
 public class HeatMapTest {
 
+    /**
+     * Test of get method, of class HeatMap.
+     */
     @Test
-    public void testConstructorTwoArgs() throws Exception {
-        HeatMap map = new HeatMap(4, 6);
-        assertEquals(4, map.getSizeX());
-        assertEquals(6, map.getSizeY());
-        assertEquals(0, map.get(new Position(0, 0)));
-        map.put(new Position(0, 0));
-        assertEquals(1, map.get(new Position(0, 0)));
+    public void testGet_0args() {
+        
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructorTwoArgsThrowsIllegalArgumentException() throws Exception {
-        new HeatMap(0, 0);
-    }
-
+    /**
+     * Test of get method, of class HeatMap.
+     */
     @Test
-    public void testConstructorThreeArgs() throws Exception {
-        HeatMap map = new HeatMap(4, 6, 5);
-        assertEquals(4, map.getSizeX());
-        assertEquals(6, map.getSizeY());
-        assertEquals(5, map.get(new Position(0, 0)));
-        map.put(new Position(0, 0));
-        assertEquals(6, map.get(new Position(0, 0)));
+    public void testGet_int() {
+        System.out.println("get");
+        int version = 0;
+        HeatMap instance = null;
+        Map<Integer, Integer> expResult = null;
+        Map<Integer, Integer> result = instance.get(version);
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructorThreeArgsThrowsIllegalArgumentException() throws Exception {
-        new HeatMap(1, 0, 0, 1);
-    }
-
+    /**
+     * Test of get method, of class HeatMap.
+     */
     @Test
-    public void testConstructorFourArgs() throws Exception {
-        HeatMap map = new HeatMap(4, 6, 5, 2);
-        assertEquals(4, map.getSizeX());
-        assertEquals(6, map.getSizeY());
-        assertEquals(5, map.get(new Position(0, 0)));
-        map.put(new Position(0, 0));
-        assertEquals(7, map.get(new Position(0, 0)));
+    public void testGet_int_int() {
+        System.out.println("get");
+        int from = 0;
+        int to = 0;
+        HeatMap instance = null;
+        Map<Integer, Integer> expResult = null;
+        Map<Integer, Integer> result = instance.get(from, to);
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testConstructorFourArgsThrowsIllegalArgumentException() throws Exception {
-        new HeatMap(1, -7, 0, 1);
-    }
-
+    /**
+     * Test of getFirst method, of class HeatMap.
+     */
     @Test
-    public void testPut() throws Exception {
-        HeatMap map = new HeatMap(1, 1);
-        assertEquals(0, map.get(new Position(0, 0)));
-        map.put(new Position(0, 0));
-        assertEquals(1, map.get(new Position(0, 0)));
+    public void testGetFirst_0args() {
+        System.out.println("getFirst");
+        HeatMap instance = null;
+        Map<Integer, Integer> expResult = null;
+        Map<Integer, Integer> result = instance.getFirst();
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
     }
 
+    /**
+     * Test of getFirst method, of class HeatMap.
+     */
     @Test
-    public void testPutNonDefaultIncrement() throws Exception {
-        HeatMap map = new HeatMap(1, 1, 0, 5);
-        assertEquals(0, map.get(new Position(0, 0)));
-        map.put(new Position(0, 0));
-        assertEquals(5, map.get(new Position(0, 0)));
+    public void testGetFirst_int() {
+        System.out.println("getFirst");
+        int n = 0;
+        HeatMap instance = null;
+        Map<Integer, Integer> expResult = null;
+        Map<Integer, Integer> result = instance.getFirst(n);
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
     }
 
-    @Test(expected = HeatMapOutOfBoundsException.class)
-    public void testPutThrowsHeatMapOutOfBoundsException() throws Exception {
-        HeatMap map = new HeatMap(1, 1, 0, 5);
-        map.get(new Position(-1, 0));
-    }
-
+    /**
+     * Test of getLast method, of class HeatMap.
+     */
     @Test
-    public void testGet() throws Exception {
-        HeatMap map = new HeatMap(1, 1);
-        assertEquals(0, map.get(new Position(0, 0)));
-        map.put(new Position(0, 0));
-        assertEquals(1, map.get(new Position(0, 0)));
+    public void testGetLast_0args() {
+        System.out.println("getLast");
+        HeatMap instance = null;
+        Map<Integer, Integer> expResult = null;
+        Map<Integer, Integer> result = instance.getLast();
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
     }
 
-    @Test(expected = HeatMapOutOfBoundsException.class)
-    public void testGetThrowsHeatMapOutOfBoundsException() throws Exception {
-        HeatMap map = new HeatMap(1, 1, 0, 5);
-        map.get(new Position(4, 5));
-    }
-
+    /**
+     * Test of getLast method, of class HeatMap.
+     */
     @Test
-    public void testReset() throws Exception {
-        HeatMap map = new HeatMap(2, 2, 5);
-
-        assertEquals(5, map.get(new Position(0, 0)));
-        assertEquals(5, map.get(new Position(0, 1)));
-        assertEquals(5, map.get(new Position(1, 0)));
-        assertEquals(5, map.get(new Position(1, 1)));
-
-        map.reset();
-
-        assertEquals(0, map.get(new Position(0, 0)));
-        assertEquals(0, map.get(new Position(0, 1)));
-        assertEquals(0, map.get(new Position(1, 0)));
-        assertEquals(0, map.get(new Position(1, 1)));
+    public void testGetLast_int() {
+        System.out.println("getLast");
+        int n = 0;
+        HeatMap instance = null;
+        Map<Integer, Integer> expResult = null;
+        Map<Integer, Integer> result = instance.getLast(n);
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
     }
 
+    /**
+     * Test of version method, of class HeatMap.
+     */
     @Test
-    public void testResetTo() throws Exception {
-        HeatMap map = new HeatMap(2, 2, 5);
-
-        assertEquals(5, map.get(new Position(0, 0)));
-        assertEquals(5, map.get(new Position(0, 1)));
-        assertEquals(5, map.get(new Position(1, 0)));
-        assertEquals(5, map.get(new Position(1, 1)));
-
-        map.reset(10);
-
-        assertEquals(10, map.get(new Position(0, 0)));
-        assertEquals(10, map.get(new Position(0, 1)));
-        assertEquals(10, map.get(new Position(1, 0)));
-        assertEquals(10, map.get(new Position(1, 1)));
+    public void testVersion() {
+        System.out.println("version");
+        HeatMap instance = null;
+        int expResult = 0;
+        int result = instance.version();
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
     }
+
+    /**
+     * Test of increment method, of class HeatMap.
+     */
+    @Test
+    public void testIncrement() throws Exception {
+        System.out.println("increment");
+        Position position = null;
+        HeatMap instance = null;
+        instance.increment(position);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of toIndex method, of class HeatMap.
+     */
+    @Test
+    public void testToIndex() {
+        System.out.println("toIndex");
+        int x = 0;
+        int y = 0;
+        HeatMap instance = null;
+        int expResult = 0;
+        int result = instance.toIndex(x, y);
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of getSizeX method, of class HeatMap.
+     */
+    @Test
+    public void testGetSizeX() {
+        System.out.println("getSizeX");
+        HeatMap instance = null;
+        int expResult = 0;
+        int result = instance.getSizeX();
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of getSizeY method, of class HeatMap.
+     */
+    @Test
+    public void testGetSizeY() {
+        System.out.println("getSizeY");
+        HeatMap instance = null;
+        int expResult = 0;
+        int result = instance.getSizeY();
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
 }
