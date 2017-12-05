@@ -3,7 +3,54 @@ package r1.shooting;
 import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
 
-public interface Shooter {
+/* 4 Matrix
+
+  for (int j = 0; j < 10; j++) //j svarer til sizeY
+        {
+            for (int i = 19; i >= 0; i -= 4) //i svarer til 2'sizeX
+            {
+                if ((i - j) >= 0 && (i - j) < 10)
+                {
+                    System.out.println(i - j + ", " + j);
+                }
+            }
+
+        }
+        
+   3 Matrix 
+
+        for (int j = 0; j < 10; j++) //j svarer til sizeY
+        {
+            
+            for (int i = 19; i >= 0; i -= 3) //i svarer til 2'sizeX
+            {
+                if ((i - j) >= 0 && (i - j) < 10)
+                {
+                    counter++;
+                    System.out.println(counter+ " " +(i - j) + ", " + j);
+                }
+            }
+
+        }
+
+   2 Matrix
+
+             for (int j = 0; j < 10; j++) //j svarer til sizeY
+        {
+            for (int i = 19; i >= 0; i -= 2) //i svarer til 2'sizeX
+            {
+                if ((i - j) >= 0 && (i - j) < 10)
+                {
+                    System.out.println(i - j + ", " + j);
+                }
+            }
+
+        }
+
+
+ */
+public interface Shooter
+{
 
     /**
      * Called in the beginning of each match to inform about the number of
