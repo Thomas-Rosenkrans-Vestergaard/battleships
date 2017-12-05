@@ -25,7 +25,7 @@ public class PlacerImpl implements Placer
 
         int numberOfShips = fleet.getNumberOfShips();
 
-        for (int i = 0; i <= numberOfShips; i++)
+        for (int i = 0; i < numberOfShips; i++)
         {
             Ship ship = fleet.getShip(i);
             Position pstn = new Position(0, i);

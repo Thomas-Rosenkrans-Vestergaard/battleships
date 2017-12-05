@@ -1,7 +1,6 @@
 package r1;
 
 import battleship.interfaces.Position;
-import java.util.Arrays;
 
 public class HeatMap {
 
@@ -20,12 +19,12 @@ public class HeatMap {
      * is called.
      */
     private final int increment;
-
+    
     /**
      * The internal storage of the {@link HeatMap}.
      */
     private int[][] map;
-    
+
     /**
      * Creates a new {@link HeatMap}. The default value of the positions in the
      * {@link HeatMap} are set the zero. The increment value is set to one.

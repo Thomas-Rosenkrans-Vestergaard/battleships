@@ -8,9 +8,6 @@ import battleship.interfaces.BattleshipsPlayer;
 import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
 import battleship.interfaces.Board;
-import battleship.interfaces.Ship;
-import java.util.Arrays;
-import java.util.Random;
 import r1.placement.Placer;
 import r1.shooting.Shooter;
 
@@ -68,7 +65,11 @@ public class AI implements BattleshipsPlayer {
      */
     @Override
     public void placeShips(Fleet fleet, Board board) {
-        placer.placeShips(fleet, board);
+        try {
+            placer.placeShips(fleet, board);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -81,7 +82,11 @@ public class AI implements BattleshipsPlayer {
      */
     @Override
     public void incoming(Position pos) {
-        placer.incoming(pos);
+        try {
+            placer.incoming(pos);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -96,7 +101,12 @@ public class AI implements BattleshipsPlayer {
      */
     @Override
     public Position getFireCoordinates(Fleet enemyShips) {
-        return shooter.getFireCoordinates(enemyShips);
+        try {
+            return shooter.getFireCoordinates(enemyShips);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
@@ -111,7 +121,11 @@ public class AI implements BattleshipsPlayer {
      */
     @Override
     public void hitFeedBack(boolean hit, Fleet enemyShips) {
-        shooter.hitFeedBack(hit, enemyShips);
+        try {
+            shooter.hitFeedBack(hit, enemyShips);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -121,8 +135,12 @@ public class AI implements BattleshipsPlayer {
      */
     @Override
     public void startRound(int round) {
-        placer.startRound(round);
-        shooter.startRound(round);
+        try {
+            placer.startRound(round);
+            shooter.startRound(round);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -137,8 +155,12 @@ public class AI implements BattleshipsPlayer {
      */
     @Override
     public void endRound(int round, int points, int enemyPoints) {
-        placer.endRound(round, points, enemyPoints);
-        shooter.endRound(round, points, enemyPoints);
+        try {
+            placer.endRound(round, points, enemyPoints);
+            shooter.endRound(round, points, enemyPoints);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -151,7 +173,11 @@ public class AI implements BattleshipsPlayer {
      */
     @Override
     public void endMatch(int won, int lost, int draw) {
-        placer.endMatch(won, lost, draw);
-        shooter.endMatch(won, lost, draw);
+        try {
+            placer.endMatch(won, lost, draw);
+            shooter.endMatch(won, lost, draw);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
