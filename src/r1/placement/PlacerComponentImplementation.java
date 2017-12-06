@@ -1,5 +1,8 @@
 package r1.placement;
 
+import r1.placement.placer.HeatMapPlacer;
+import r1.placement.placer.RandomPlacer;
+import r1.placement.placer.Placer;
 import battleship.interfaces.Board;
 import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
@@ -18,20 +21,20 @@ import r1.heatmap.HeatMapView;
 import r1.heatmap.NoActiveHeatMapVersionException;
 import r1.heatmap.UnknownHeatMapVersionException;
 
-public class PlacerImpl implements Placer {
+public class PlacerComponentImplementation implements PlacerComponent {
 
-    private PlacerMemory memory;
-    private PlacerTactic heatMapPlacerTactic;
-    private PlacerTactic randomPlacerTactic;
+    private PlacerComponentMemory memory;
+    private Placer heatMapPlacerTactic;
+    private Placer randomPlacerTactic;
 
     @Override
     public void startMatch(int rounds, Fleet ships, int sizeX, int sizeY) {
         HeatMap incomingHeatMap = new HeatMap(sizeX, sizeY);
         incomingHeatMap.makeVersion(true);
         int numberOfHeatMaps = (int) (5 * Math.pow(2, Math.log10((double) rounds) - 1));
-        this.memory = new PlacerMemory(incomingHeatMap, rounds, numberOfHeatMaps, sizeX, sizeY);
-        this.heatMapPlacerTactic = new HeatMapPlacerTactic(this.memory);
-        this.randomPlacerTactic = new RandomPlacerTactic(this.memory);
+        this.memory = new PlacerComponentMemory(incomingHeatMap, rounds, numberOfHeatMaps, sizeX, sizeY);
+        this.heatMapPlacerTactic = new HeatMapPlacer(this.memory);
+        this.randomPlacerTactic = new RandomPlacer(this.memory);
     }
 
     @Override

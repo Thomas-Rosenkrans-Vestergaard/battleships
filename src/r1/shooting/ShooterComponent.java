@@ -49,7 +49,7 @@ import battleship.interfaces.Position;
 
 
  */
-public interface Shooter
+public interface ShooterComponent
 {
 
     /**

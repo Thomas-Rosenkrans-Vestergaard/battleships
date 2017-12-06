@@ -1,4 +1,4 @@
-package r1.placement;
+package r1.placement.placer;
 
 import battleship.interfaces.Board;
 import battleship.interfaces.Fleet;
@@ -12,12 +12,13 @@ import r1.heatmap.HeatMap;
 import r1.heatmap.HeatMapArea;
 import r1.heatmap.HeatMapView;
 import r1.heatmap.NoActiveHeatMapVersionException;
+import r1.placement.PlacerComponentMemory;
 
-public class HeatMapPlacerTactic implements PlacerTactic {
+public class HeatMapPlacer implements Placer {
 
-    private final PlacerMemory memory;
+    private final PlacerComponentMemory memory;
 
-    public HeatMapPlacerTactic(PlacerMemory memory) {
+    public HeatMapPlacer(PlacerComponentMemory memory) {
         this.memory = memory;
     }
 

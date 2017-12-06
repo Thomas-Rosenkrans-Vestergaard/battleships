@@ -17,17 +17,13 @@ public class HeatMap {
      * The vertical size of the {@link HeatMap}.
      */
     private final int sizeY;
+    
+    private final int numberOfPositions;
 
     /**
      * The default value of the values in the {@link HeatMap}.
      */
     private final int defaultValue;
-
-    /**
-     * The amount incremented when the {@link HeatMap#put(r1.Position)} method
-     * is called.
-     */
-    private int changeValue;
 
     /**
      * The {@link HeatMapVersion} iterations of the {@link HeatMap}.
@@ -52,19 +48,7 @@ public class HeatMap {
      * @param sizeY The vertical size of the {@link HeatMap}.
      */
     public HeatMap(int sizeX, int sizeY) {
-        this(sizeX, sizeY, 0, 1);
-    }
-
-    /**
-     * Creates a new {@link HeatMap}. The increment value is set to one.
-     *
-     * @param sizeX The horisontal size of the {@link HeatMap}.
-     * @param sizeY The vertical size of the {@link HeatMap}.
-     * @param defaultValue The default values of the positions in the
-     * {@link HeatMap}.
-     */
-    public HeatMap(int sizeX, int sizeY, int defaultValue) {
-        this(sizeX, sizeY, defaultValue, 1);
+        this(sizeX, sizeY, 0);
     }
 
     /**
@@ -77,7 +61,7 @@ public class HeatMap {
      * @param changeValue The amount incremented when the
      * {@link HeatMap#put(r1.Position)} method is called.
      */
-    public HeatMap(int sizeX, int sizeY, int defaultValue, int changeValue) {
+    public HeatMap(int sizeX, int sizeY, int defaultValue) {
 
         if (sizeX < 1) {
             throw new IllegalArgumentException("sizeX cannot be less than 1.");
@@ -89,8 +73,8 @@ public class HeatMap {
 
         this.sizeX = sizeX;
         this.sizeY = sizeY;
+        this.numberOfPositions = sizeX * sizeY;
         this.defaultValue = defaultValue;
-        this.changeValue = changeValue;
         this.versions = new ArrayList<>();
         this.maps = new ArrayList<>();
     }
@@ -287,17 +271,50 @@ public class HeatMap {
      * position.
      *
      * @param position The position
+     * @param value The value.
      * @throws NoActiveHeatMapVersionException
      */
-    public void increment(Position position) throws NoActiveHeatMapVersionException {
+    public void addToValue(Position position, int value) throws NoActiveHeatMapVersionException, HeatMapOutOfBoundsException {
 
         if (activeVersion == -1) {
             throw new NoActiveHeatMapVersionException();
         }
 
         int index = position.y * sizeX + position.x;
+        if (index < 0 || index >= numberOfPositions) {
+            throw new HeatMapOutOfBoundsException(position);
+        }
+
         Map<Integer, Integer> currentMap = maps.get(activeVersion);
-        currentMap.put(index, currentMap.get(index) + changeValue);
+        currentMap.put(index, currentMap.get(index) + value);
+    }
+
+    public void setToValue(Position position, int value) throws NoActiveHeatMapVersionException, HeatMapOutOfBoundsException {
+        if (activeVersion == -1) {
+            throw new NoActiveHeatMapVersionException();
+        }
+
+        int index = position.y * sizeX + position.x;
+        if(index < 0 || index >= numberOfPositions){
+            throw new HeatMapOutOfBoundsException(position);
+        }
+        
+        Map<Integer, Integer> currentMap = maps.get(activeVersion);
+        currentMap.put(index, value);
+    }
+    
+    public int getValue(Position position) throws NoActiveHeatMapVersionException, HeatMapOutOfBoundsException {
+        if (activeVersion == -1) {
+            throw new NoActiveHeatMapVersionException();
+        }
+
+        int index = position.y * sizeX + position.x;
+        if (index < 0 || index >= numberOfPositions) {
+            throw new HeatMapOutOfBoundsException(position);
+        }
+
+        Map<Integer, Integer> currentMap = maps.get(activeVersion);
+        return currentMap.get(index);
     }
 
     /**
@@ -327,14 +344,6 @@ public class HeatMap {
      */
     public int getSizeY() {
         return sizeY;
-    }
-
-    public int getChangeValue() {
-        return changeValue;
-    }
-
-    public void setChangeValue(int increment) {
-        this.changeValue = increment;
     }
 
     public int getNumberOfVersions() {

@@ -21,9 +21,9 @@ public class HeatMapTest {
     public void test() throws Exception {
         HeatMap hm = new HeatMap(3, 3);
         hm.makeVersion(true);
-        hm.increment(new Position(0, 0));
-        hm.increment(new Position(0, 2));
-        hm.increment(new Position(2, 2));
+        hm.addToValue(new Position(0, 0));
+        hm.addToValue(new Position(0, 2));
+        hm.addToValue(new Position(2, 2));
         PositionedArea result = hm.getVersion(0).getColdestArea(new Area(2, 2));
         System.out.println(result);
     }

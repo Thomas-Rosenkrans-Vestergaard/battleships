@@ -1,9 +1,9 @@
-package r1.placement;
+package r1.placement.placer;
 
 import battleship.interfaces.Board;
 import battleship.interfaces.Fleet;
 
-public interface PlacerTactic {
+public interface Placer {
     
     /**
      * The method called when its time for the AI to place ships on the board

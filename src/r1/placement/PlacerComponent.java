@@ -4,7 +4,7 @@ import battleship.interfaces.Board;
 import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
 
-public interface Placer {
+public interface PlacerComponent {
 
     /**
      * Called in the beginning of each match to inform about the number of

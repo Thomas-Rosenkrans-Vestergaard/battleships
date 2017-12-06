@@ -1,32 +1,28 @@
-package r1.shooting;
+package r1.shooting.shooter;
 
 import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.Stack;
-import java.util.function.BiConsumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.JOptionPane;
-import r1.heatmap.HeatMap;
-import r1.placement.PlacerImpl;
+import r1.shooting.ShooterComponentMemory;
 
-public class ShooterImpl implements Shooter {
-
+/**
+ *
+ * @author Thomas
+ */
+/*public class DiagonalsShooter implements Shooter {
     public enum Mode {
         SEEK,
         HUNT,
     }
 
+    private List<Shooter> tactics = new ArrayList<>();
+    private ShooterComponentMemory memory;
+
     private Set<Integer> firedShots;
-    private int sizeX;
-    private int sizeY;
     private Stack<Position> positions;
 
     private Position seekShot;
@@ -42,8 +38,8 @@ public class ShooterImpl implements Shooter {
 
     @Override
     public void startMatch(int rounds, Fleet ships, int sizeX, int sizeY) {
-        this.sizeX = sizeX;
-        this.sizeY = sizeY;
+
+        this.memory = new ShooterComponentMemory(sizeX, sizeY);
         this.originalFleet = ships;
         for (int x = 0; x < ships.getNumberOfShips(); x++) {
             possibleHits += ships.getShip(x).size();
@@ -54,7 +50,7 @@ public class ShooterImpl implements Shooter {
 
     @Override
     public Position getFireCoordinates(Fleet enemyShips) {
-        /*
+        
         if (currentMode == Mode.SEEK) {
             seekShot = positions.pop();
             firedShots.add(toIndex(seekShot));
@@ -98,7 +94,7 @@ public class ShooterImpl implements Shooter {
             }
         }
 
-        throw new UnsupportedOperationException();*/
+        throw new UnsupportedOperationException();
 
         return new Position(0, 0);
     }
@@ -112,10 +108,6 @@ public class ShooterImpl implements Shooter {
 
         if (currentMode == Mode.HUNT) {
             hitLastHunt = hit;
-            /*sunkLastHunt = previousEnemyFleet.getNumberOfShips() != enemyShips.getNumberOfShips();
-            if (sunkLastHunt) {
-                currentMode = Mode.SEEK;
-            }*/
         }
     }
 
@@ -147,10 +139,10 @@ public class ShooterImpl implements Shooter {
     }
 
     private int toIndex(Position position) {
-        return position.y * sizeX + position.x;
+        return position.y * memory.sizeX + position.x;
     }
 
     private boolean isValid(Position position) {
-        return position.x >= 0 && position.x < sizeX && position.y >= 0 && position.y < sizeY;
+        return position.x >= 0 && position.x < memory.sizeX && position.y >= 0 && position.y < memory.sizeY;
     }
-}
+}*/

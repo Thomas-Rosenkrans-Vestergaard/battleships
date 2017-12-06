@@ -2,11 +2,14 @@ package r1.placement;
 
 import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import r1.heatmap.HeatMap;
+import r1.heatmap.HeatMapOutOfBoundsException;
 import r1.heatmap.HeatMapVersion;
 import r1.heatmap.NoActiveHeatMapVersionException;
 
-public class PlacerMemory {
+public class PlacerComponentMemory {
 
     /**
      * The {@link HeatMap} watching the incomming fire.
@@ -45,7 +48,7 @@ public class PlacerMemory {
 
     private int currentHeatMapVersion = 0;
 
-    public PlacerMemory(HeatMap incomingHeatMap, int numberOfRounds, int numberOfHeatMaps, int sizeX, int sizeY) {
+    public PlacerComponentMemory(HeatMap incomingHeatMap, int numberOfRounds, int numberOfHeatMaps, int sizeX, int sizeY) {
         this.incomingHeatMap = incomingHeatMap;
         this.numberOfRounds = numberOfRounds;
         this.numberOfHeatMaps = numberOfHeatMaps;
@@ -83,9 +86,8 @@ public class PlacerMemory {
         System.out.println("incomming " + pos);
         System.out.println(this);
         try {
-            incomingHeatMap.setChangeValue(remainingEnemyShots--);
-            incomingHeatMap.increment(pos);
-        } catch (NoActiveHeatMapVersionException e) {
+            incomingHeatMap.addToValue(pos, remainingEnemyShots--);
+        } catch (NoActiveHeatMapVersionException | HeatMapOutOfBoundsException e) {
             throw new IllegalStateException(e);
         }
     }

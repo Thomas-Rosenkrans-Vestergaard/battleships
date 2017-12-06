@@ -6,8 +6,8 @@
 package r1;
 
 import battleship.interfaces.BattleshipsPlayer;
-import r1.placement.PlacerImpl;
-import r1.shooting.ShooterImpl;
+import r1.placement.PlacerComponentImplementation;
+import r1.shooting.ShooterComponentImplementation;
 import tournament.player.PlayerFactory;
 
 /**
@@ -22,7 +22,7 @@ public class R1 implements PlayerFactory<BattleshipsPlayer> {
 
     @Override
     public BattleshipsPlayer getNewInstance() {
-        return new AI(new PlacerImpl(), new ShooterImpl());
+        return new AI(new PlacerComponentImplementation(), new ShooterComponentImplementation());
     }
 
     @Override

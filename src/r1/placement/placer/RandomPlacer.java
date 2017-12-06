@@ -1,4 +1,4 @@
-package r1.placement;
+package r1.placement.placer;
 
 import battleship.interfaces.Board;
 import battleship.interfaces.Fleet;
@@ -8,15 +8,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import r1.PositionedArea;
+import r1.placement.PlacerComponentMemory;
+import r1.placement.ShipPlacement;
 import r1.placement.ShipPlacement.Rotation;
 
-public class RandomPlacerTactic implements PlacerTactic {
+public class RandomPlacer implements Placer {
 
-    private final PlacerMemory memory;
+    private final PlacerComponentMemory memory;
     private final Random random = new Random();
     private List<PositionedArea> placedShips;
 
-    public RandomPlacerTactic(PlacerMemory memory) {
+    public RandomPlacer(PlacerComponentMemory memory) {
         this.memory = memory;
     }
 

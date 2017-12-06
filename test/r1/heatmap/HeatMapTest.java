@@ -41,13 +41,13 @@ public class HeatMapTest {
         HeatMapVersion b = hm.getVersion(1);
 
         hm.setActiveVersion(0);
-        hm.increment(new Position(0, 0));
+        hm.addToValue(new Position(0, 0));
 
         assertEquals(1, a.getValue(new Position(0, 0)));
         assertEquals(0, b.getValue(new Position(0, 0)));
 
         hm.setActiveVersion(1);
-        hm.increment(new Position(0, 0));
+        hm.addToValue(new Position(0, 0));
 
         assertEquals(1, a.getValue(new Position(0, 0)));
         assertEquals(1, b.getValue(new Position(0, 0)));

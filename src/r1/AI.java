@@ -8,8 +8,8 @@ import battleship.interfaces.BattleshipsPlayer;
 import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
 import battleship.interfaces.Board;
-import r1.placement.Placer;
-import r1.shooting.Shooter;
+import r1.placement.PlacerComponent;
+import r1.shooting.ShooterComponent;
 
 /**
  *
@@ -17,13 +17,13 @@ import r1.shooting.Shooter;
  */
 public class AI implements BattleshipsPlayer {
 
-    private Placer placer;
-    private Shooter shooter;
+    private PlacerComponent placer;
+    private ShooterComponent shooter;
 
     /**
      * Creates a new {@link AI}.
      */
-    public AI(Placer placer, Shooter shooter) {
+    public AI(PlacerComponent placer, ShooterComponent shooter) {
         this.placer = placer;
         this.shooter = shooter;
     }
