@@ -1,4 +1,4 @@
-package r1;
+package r1.heatmap;
 
 /**
  * Thrown when attempting to access an out of bounds {@link Position} in a

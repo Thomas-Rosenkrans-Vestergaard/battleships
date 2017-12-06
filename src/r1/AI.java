@@ -39,12 +39,8 @@ public class AI implements BattleshipsPlayer {
      */
     @Override
     public void startMatch(int rounds, Fleet ships, int sizeX, int sizeY) {
-        try {
-            placer.startMatch(rounds, ships, sizeX, sizeY);
-            shooter.startMatch(rounds, ships, sizeX, sizeY);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        placer.startMatch(rounds, ships, sizeX, sizeY);
+        shooter.startMatch(rounds, ships, sizeX, sizeY);
     }
 
     /**

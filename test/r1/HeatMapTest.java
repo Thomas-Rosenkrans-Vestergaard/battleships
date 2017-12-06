@@ -5,6 +5,7 @@
  */
 package r1;
 
+import r1.heatmap.HeatMap;
 import battleship.interfaces.Position;
 import java.util.Map;
 import org.junit.Test;
@@ -121,7 +122,7 @@ public class HeatMapTest {
         System.out.println("version");
         HeatMap instance = null;
         int expResult = 0;
-        int result = instance.version();
+        int result = instance.makeVersion();
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");

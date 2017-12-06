@@ -1,4 +1,4 @@
-package r1;
+package r1.heatmap;
 
 import battleship.interfaces.Position;
 import java.util.ArrayList;
@@ -30,14 +30,19 @@ public class HeatMap {
     private final int increment;
 
     /**
-     * The internal storage of the {@link HeatMap}.
+     * The {@link HeatMapVersion} iterations of the {@link HeatMap}.
      */
-    private List<Map<Integer, Integer>> maps;
+    private List<HeatMapVersion> versions;
+
+    /**
+     * The internal storage.
+     */
+    private List<HashMap<Integer, Integer>> maps;
 
     /**
      * The map currently being edited.
      */
-    private int currentIndex = -1;
+    private int currentVersion = -1;
 
     /**
      * Creates a new {@link HeatMap}. The default value of the positions in the
@@ -86,7 +91,40 @@ public class HeatMap {
         this.sizeY = sizeY;
         this.defaultValue = defaultValue;
         this.increment = increment;
-        this.maps = new ArrayList<>();
+        this.versions = new ArrayList<>();
+    }
+
+    /**
+     * Creates a new version of the {@link HeatMap}.
+     *
+     * @return The index identifying the new version of the {@link HeatMap}. The
+     * version indices are zero-indexed.
+     */
+    public int makeVersion() {
+        this.currentVersion++;
+        versions.add(createVersion());
+        return this.currentVersion;
+    }
+
+    public void setCurrentVersion(int versionNumber) throws UnknownHeatMapVersionException {
+        if (versions.get(versionNumber) == null) {
+            throw new UnknownHeatMapVersionException(versionNumber);
+        }
+
+        this.currentVersion = versionNumber;
+    }
+
+    public int getCurrentVersion() {
+        return currentVersion;
+    }
+
+    public HeatMapVersion getVersion(int versionNumber) throws UnknownHeatMapVersionException {
+        HeatMapVersion version = versions.get(versionNumber);
+        if (version == null) {
+            throw new UnknownHeatMapVersionException(versionNumber);
+        }
+
+        return version;
     }
 
     /**
@@ -95,7 +133,7 @@ public class HeatMap {
      * @return The merged versions of the {@link HeatMap}.
      */
     public Map<Integer, Integer> get() {
-        return mergeMaps(0, maps.size());
+        return mergeMaps(0, versions.size());
     }
 
     /**
@@ -105,7 +143,7 @@ public class HeatMap {
      * @return The {@link HeatMap}.
      */
     public Map<Integer, Integer> get(int version) {
-        return maps.get(version);
+        return versions.get(version);
     }
 
     /**
@@ -128,7 +166,7 @@ public class HeatMap {
      * @return The first version of the {@link HeatMap}.
      */
     public Map<Integer, Integer> getFirst() {
-        return maps.get(0);
+        return versions.get(0);
     }
 
     /**
@@ -148,7 +186,7 @@ public class HeatMap {
      * @return The last version of the {@link HeatMap}.
      */
     public Map<Integer, Integer> getLast() {
-        return maps.get(currentIndex);
+        return versions.get(currentVersion);
     }
 
     /**
@@ -159,19 +197,7 @@ public class HeatMap {
      * @return The merged versions.
      */
     public Map<Integer, Integer> getLast(int n) {
-        return mergeMaps(currentIndex, currentIndex + 1);
-    }
-
-    /**
-     * Creates a new version of the {@link HeatMap}.
-     *
-     * @return The index identifying the new version of the {@link HeatMap}. The
-     * version indices are zero-indexed.
-     */
-    public int version() {
-        this.currentIndex++;
-        maps.add(createMap());
-        return this.currentIndex;
+        return mergeMaps(currentVersion, currentVersion + 1);
     }
 
     /**
@@ -186,9 +212,9 @@ public class HeatMap {
      */
     private Map<Integer, Integer> mergeMaps(int from, int to) {
         Map<Integer, Integer> result = new HashMap<>();
-        for (int x = from; x < maps.size() && x < to - 1; x++) {
+        for (int x = from; x < versions.size() && x < to - 1; x++) {
             for (int index = 0; index < sizeX * sizeY; index++) {
-                result.put(index, result.getOrDefault(index, 0) + maps.get(x).get(index));
+                result.put(index, result.getOrDefault(index, 0) + versions.get(x).get(index));
             }
         }
 
@@ -200,7 +226,7 @@ public class HeatMap {
      *
      * @return The new map.
      */
-    private Map<Integer, Integer> createMap() {
+    private Map<Integer, Integer> createVersion() {
         Map<Integer, Integer> map = new HashMap<Integer, Integer>();
         for (int i = 0; i < sizeX * sizeY; i++) {
             map.put(i, defaultValue);
@@ -218,7 +244,7 @@ public class HeatMap {
      */
     public void increment(Position position) throws HeatMapOutOfBoundsException {
         int index = position.y * sizeX + position.x;
-        Map<Integer, Integer> currentMap = maps.get(currentIndex);
+        Map<Integer, Integer> currentMap = versions.get(currentVersion);
         if (currentMap == null) {
             throw new HeatMapOutOfBoundsException();
         }

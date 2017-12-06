@@ -14,8 +14,8 @@ import java.util.function.BiConsumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import r1.HeatMap;
-import r1.HeatMapOutOfBoundsException;
+import r1.heatmap.HeatMap;
+import r1.heatmap.HeatMapOutOfBoundsException;
 import r1.placement.PlacerImpl;
 
 public class ShooterImpl implements Shooter {
