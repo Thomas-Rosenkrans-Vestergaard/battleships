@@ -15,7 +15,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import r1.heatmap.HeatMap;
-import r1.heatmap.HeatMapOutOfBoundsException;
 import r1.placement.PlacerImpl;
 
 public class ShooterImpl implements Shooter {
@@ -55,8 +54,7 @@ public class ShooterImpl implements Shooter {
 
     @Override
     public Position getFireCoordinates(Fleet enemyShips) {
-
-        ''
+        /*
         if (currentMode == Mode.SEEK) {
             seekShot = positions.pop();
             firedShots.add(toIndex(seekShot));
@@ -69,11 +67,11 @@ public class ShooterImpl implements Shooter {
                 currentMode = Mode.SEEK;
                 return getFireCoordinates(enemyShips);
             }
-            
+
             if (hitLastHunt) {
-                
+
             }
-            
+
             Position top = new Position(seekShot.x, seekShot.y + 1);
             if (isValid(top) && !firedShots.contains(toIndex(top))) {
                 firedShots.add(toIndex(top));
@@ -100,7 +98,9 @@ public class ShooterImpl implements Shooter {
             }
         }
 
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException();*/
+
+        return new Position(0, 0);
     }
 
     @Override
