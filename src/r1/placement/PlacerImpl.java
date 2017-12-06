@@ -20,159 +20,55 @@ import r1.heatmap.UnknownHeatMapVersionException;
 
 public class PlacerImpl implements Placer {
 
-    /**
-     * The {@link HeatMap} watching the incomming fire.
-     */
-    private HeatMap incomingHeatMap;
-
-    /**
-     * The current round number.
-     */
-    private int currentRound;
-
-    /**
-     * The number of rounds to be played.
-     */
-    private int numberOfRounds;
-
-    /**
-     * The number of heat maps generated during a match.
-     */
-    private int numberOfHeatMaps;
-
-    /**
-     * The number of shots still to be fired from the opponent.
-     */
-    private int remainingNumberOfShots;
-
-    /**
-     * The size of the board on the x-axis.
-     */
-    private int sizeX;
-
-    /**
-     * The size of the board on the y-axis.
-     */
-    private int sizeY;
-
-    /**
-     * The current version of the {@link HeatMap}.
-     */
-    private int currentHeatMapVersion;
+    private PlacerMemory memory;
+    private PlacerTactic heatMapPlacerTactic;
+    private PlacerTactic randomPlacerTactic;
 
     @Override
     public void startMatch(int rounds, Fleet ships, int sizeX, int sizeY) {
-        this.incomingHeatMap = new HeatMap(sizeX, sizeY);
-        this.incomingHeatMap.makeVersion(true);
-        this.numberOfRounds = rounds;
-        this.numberOfHeatMaps = (int) (5 * Math.pow(2, Math.log10((double) rounds) - 1));
-        this.sizeX = sizeX;
-        this.sizeY = sizeY;
+        HeatMap incomingHeatMap = new HeatMap(sizeX, sizeY);
+        incomingHeatMap.makeVersion(true);
+        int numberOfHeatMaps = (int) (5 * Math.pow(2, Math.log10((double) rounds) - 1));
+        this.memory = new PlacerMemory(incomingHeatMap, rounds, numberOfHeatMaps, sizeX, sizeY);
+        this.heatMapPlacerTactic = new HeatMapPlacerTactic(this.memory);
+        this.randomPlacerTactic = new RandomPlacerTactic(this.memory);
     }
 
     @Override
     public void startRound(int round) {
-        System.out.println("startRound:" + round);
-        System.out.println("numberOfRounds:" + numberOfRounds);
-        System.out.println("numberOfHeatMaps:" + numberOfHeatMaps);
-        this.remainingNumberOfShots = sizeX * sizeY;
-        this.currentRound = round;
-        if ((round - 1) % (numberOfRounds / numberOfHeatMaps) == 0) {
-            this.currentHeatMapVersion = incomingHeatMap.makeVersion(true);
-            System.out.println("currentHeatMapVersion:" + this.currentHeatMapVersion);
-        }
+        memory.startRound(round);
     }
 
     @Override
     public void placeShips(Fleet fleet, Board board) {
+        int currentRound = memory.getCurrentRound();
+        int numberOfRounds = memory.getNumberOfRounds();
+        int numberOfHeatMaps = memory.getNumberOfHeatMaps();
 
-        try {
-
-            int numberOfShips = fleet.getNumberOfShips();
-
-            if (currentRound <= (numberOfRounds / numberOfHeatMaps)) {
-                for (int i = 0; i < numberOfShips; i++) {
-                    Ship ship = fleet.getShip(i);
-                    Position pstn = new Position(0, i);
-                    board.placeShip(pstn, ship, false);
-                }
-                return;
-            }
-
-            HeatMapView version = incomingHeatMap.mergeLast(3);
-            List<PositionedArea> usedAreas = new ArrayList<>();
-
-            System.out.println("PLACEMENT");
-            System.out.println("numberOfVersions:" + incomingHeatMap.getNumberOfVersions());
-            System.out.println("currentVersion:" + incomingHeatMap.getActiveVersionNumber());
-            System.out.println(version.toString());
-            for (int i = 0; i < numberOfShips; i++) {
-
-                Ship currentShip = fleet.getShip(i);
-
-                Area horizontalArea = new Area(currentShip.size(), 1);
-                Area verticalArea = new Area(1, currentShip.size());
-
-                HeatMapArea horizontalPositionedArea = version.getColdestAreaExclude(horizontalArea, usedAreas);
-                HeatMapArea verticalPositionedArea = version.getColdestAreaExclude(verticalArea, usedAreas);
-
-                if (horizontalPositionedArea.getAverageHeat() < verticalPositionedArea.getAverageHeat()) {
-                    board.placeShip(horizontalPositionedArea.getPosition(), currentShip, false);
-                    usedAreas.add(horizontalPositionedArea);
-                } else {
-                    board.placeShip(verticalPositionedArea.getPosition(), currentShip, true);
-                    usedAreas.add(verticalPositionedArea);
-                }
-            }
-        } catch (NoActiveHeatMapVersionException e) {
-            throw new IllegalStateException(e);
+        if (currentRound <= (numberOfRounds / numberOfHeatMaps)) {
+            randomPlacerTactic.placeShips(fleet, board);
+        } else {
+            heatMapPlacerTactic.placeShips(fleet, board);
         }
     }
 
     @Override
     public void incoming(Position pos) {
-        try {
-            incomingHeatMap.setChangeValue(remainingNumberOfShots--);
-            System.out.println("INCOMING " + pos);
-            System.out.println(incomingHeatMap.getActiveVersionNumber());
-
-            incomingHeatMap.increment(pos);
-            
-        } catch (NoActiveHeatMapVersionException e) {
-            throw new IllegalStateException(e);
-        }
+        memory.incoming(pos);
     }
 
     @Override
     public void endRound(int round, int points, int enemyPoints) {
-
-        try {
-            System.out.println("endRound");
-            System.out.println("0,0:" + incomingHeatMap.getLastVersion().getValue(new r1.Position(0, 0)));
-            System.out.println(round);
-            System.out.println(numberOfRounds / numberOfHeatMaps);
-            System.out.println("currentVersionNumber:" + incomingHeatMap.getActiveVersionNumber());
-            System.out.println("numberOfVersions " + incomingHeatMap.getNumberOfVersions());
-            if (round != 1 && round % (numberOfRounds / numberOfHeatMaps) == 0) {
-                System.out.println("Output");
-                HeatMapVersion view = incomingHeatMap.getLastVersion();
-                System.out.println(view.getClass());
-                System.out.println(view.toString());
-                System.out.println(view.getVersion());
-            }
-
-        } catch (NoActiveHeatMapVersionException e) {
-            throw new IllegalStateException(e);
-        }
+        memory.endRound(round, points, enemyPoints);
     }
 
     @Override
     public void endMatch(int won, int lost, int draw) {
         try {
             System.out.println("endMatch");
-            for (int x = 0; x < numberOfHeatMaps; x++) {
+            for (int x = 0; x < memory.getNumberOfHeatMaps(); x++) {
                 System.out.println("map:" + x);
-                System.out.println(incomingHeatMap.getVersion(x));
+                System.out.println(memory.getIncomingHeatMap().getVersion(x));
             }
         } catch (UnknownHeatMapVersionException e) {
             throw new IllegalStateException(e);

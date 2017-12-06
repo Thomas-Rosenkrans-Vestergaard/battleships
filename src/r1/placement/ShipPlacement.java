@@ -1,6 +1,7 @@
 package r1.placement;
 
 import battleship.interfaces.Position;
+import battleship.interfaces.Ship;
 
 public class ShipPlacement {
 
@@ -9,13 +10,14 @@ public class ShipPlacement {
      */
     public enum Rotation {
         VERTICAL,
-        HORIZONTAL,
+        HORIZONTAL;
+
+        public boolean toBoolean() {
+            return this == Rotation.VERTICAL;
+        }
     }
 
-    /**
-     * The length of the ship to be placed.
-     */
-    private int shipLength;
+    private Ship ship;
 
     /**
      * The position of the ship to be placed. The position is the bottom-most
@@ -32,26 +34,35 @@ public class ShipPlacement {
     /**
      * Creates a new {@link ShipPlacement}.
      *
-     * @param shipLength The length of the ship to be placed.
+     * @param ship
      * @param position The position of the ship to be placed. The position is
      * the bottom-most square when the rotation of the ship is vertical. The
      * position is the left-most square when the rotation of the ship is
      * horizontal.
      * @param rotation The rotation of the ship to be placed.
      */
-    public ShipPlacement(int shipLength, Position position, Rotation rotation) {
-        this.shipLength = shipLength;
+    public ShipPlacement(Ship ship, Position position, Rotation rotation) {
+        this.ship = ship;
         this.position = position;
         this.rotation = rotation;
     }
 
     /**
-     * The the length of the ship to be placed.
+     * Creates a new {@link ShipPlacement}.
      *
-     * @return The length of the ship to be placed.
+     * @param ship
+     * @param position The position of the ship to be placed. The position is
+     * the bottom-most square when the rotation of the ship is vertical. The
+     * position is the left-most square when the rotation of the ship is
+     * horizontal.
+     * @param rotation The rotation of the ship to be placed.
      */
-    public int getShipLength() {
-        return shipLength;
+    public ShipPlacement(Ship ship, Position position, boolean rotation) {
+        this(ship, position, rotation ? Rotation.VERTICAL : Rotation.HORIZONTAL);
+    }
+
+    public Ship getShip() {
+        return ship;
     }
 
     /**
