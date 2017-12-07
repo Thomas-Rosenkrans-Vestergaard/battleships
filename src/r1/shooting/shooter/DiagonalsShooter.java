@@ -13,7 +13,7 @@ import r1.shooting.ShooterComponentMemory;
  *
  * @author Thomas
  */
-/*public class DiagonalsShooter implements Shooter {
+public class DiagonalsShooter implements Shooter {
     public enum Mode {
         SEEK,
         HUNT,
@@ -30,16 +30,15 @@ import r1.shooting.ShooterComponentMemory;
     private Mode currentMode = Mode.SEEK;
     private int totalHits = 0;
     private int possibleHits;
+    private int shotIncrement=0;
 
     private Fleet previousEnemyFleet;
     private Fleet originalFleet;
     private boolean hitLastHunt;
     private boolean sunkLastHunt;
 
-    @Override
-    public void startMatch(int rounds, Fleet ships, int sizeX, int sizeY) {
-
-        this.memory = new ShooterComponentMemory(sizeX, sizeY);
+    public DiagonalsShooter(int rounds, Fleet ships, int sizeX, int sizeY){
+    this.memory = new ShooterComponentMemory(rounds, ships, sizeX, sizeY);
         this.originalFleet = ships;
         for (int x = 0; x < ships.getNumberOfShips(); x++) {
             possibleHits += ships.getShip(x).size();
@@ -52,7 +51,8 @@ import r1.shooting.ShooterComponentMemory;
     public Position getFireCoordinates(Fleet enemyShips) {
         
         if (currentMode == Mode.SEEK) {
-            seekShot = positions.pop();
+            seekShot = nextShot(shotIncrement, memory);
+    
             firedShots.add(toIndex(seekShot));
             return seekShot;
         }
@@ -95,8 +95,6 @@ import r1.shooting.ShooterComponentMemory;
         }
 
         throw new UnsupportedOperationException();
-
-        return new Position(0, 0);
     }
 
     @Override
@@ -111,31 +109,61 @@ import r1.shooting.ShooterComponentMemory;
         }
     }
 
-    @Override
-    public void startRound(int round) {
-        this.positions = new Stack<>();
-        this.firedShots = new HashSet<>();
-        this.previousEnemyFleet = originalFleet;
-        this.currentMode = Mode.SEEK;
-        this.totalHits = 0;
-        for (int j = 0; j < 10; j++) {
-            for (int i = 19; i >= 0; i -= 4) {
-                if ((i - j) >= 0 && (i - j) < 10) {
-                    Position position = new Position(i - j, j);
-                    positions.add(position);
+//    @Override
+//    public void startRound(int round) {
+//        this.positions = new Stack<>();
+//        this.firedShots = new HashSet<>();
+//        this.previousEnemyFleet = originalFleet;
+//        this.currentMode = Mode.SEEK;
+//        this.totalHits = 0;
+//        for (int j = 0; j < 10; j++) {
+//            for (int i = 19; i >= 0; i -= 4) {
+//                if ((i - j) >= 0 && (i - j) < 10) {
+//                    Position position = new Position(i - j, j);
+//                    positions.add(position);
+//                }
+//            }
+//        }
+//    }
+    
+    public Position nextShot(int shootIncrement , ShooterComponentMemory memory)
+    {
+        this.shotIncrement = shootIncrement;
+        
+        Position position = new Position(0,0);
+        
+          for (int j = 0; j < 10; j++) 
+          {
+            for (int i = 19; i >= 0; i -= shootIncrement) {
+                if ((i - j) >= 0 && (i - j) < 10)
+                
+                {
+                    position = new Position(i - j, j);
+                    if (memory.hasBeenFiredAt(position) && (i-j+shootIncrement)<10)
+                    {
+                        position = new Position(i-j+shootIncrement, j);
+                    }
+                        
+                    if (!memory.hasBeenFiredAt(position))  
+                    {
+                        for (int k = -shootIncrement; k<0 ;k++)
+                        {
+                            if ((i-j+k)>-1)
+                            {
+                           position = new Position(i-j+k+shootIncrement,j);
+                            }
+                        }
+                    }
                 }
             }
         }
+         return position; 
     }
 
     @Override
-    public void endRound(int round, int points, int enemyPoints) {
-
-    }
-
-    @Override
-    public void endMatch(int won, int lost, int draw) {
-
+    public void onFire(Position position)
+    {
+        
     }
 
     private int toIndex(Position position) {
@@ -145,4 +173,4 @@ import r1.shooting.ShooterComponentMemory;
     private boolean isValid(Position position) {
         return position.x >= 0 && position.x < memory.sizeX && position.y >= 0 && position.y < memory.sizeY;
     }
-}*/
+}

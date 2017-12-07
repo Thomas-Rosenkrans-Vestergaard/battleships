@@ -35,11 +35,14 @@ public class ShooterComponentMemory {
     private Position lastFiredPosition;
     private int currentRound;
     private int remainingShots;
+    private int lastShotNumber;
     private int currentHeatMapVersion = 0;
 
     public ShooterComponentMemory(int numberOfRounds, Fleet fleet, int sizeX, int sizeY) {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
+        this.remainingShots = sizeY * sizeX;
+        this.lastShotNumber = 0;
         this.numberOfShips = fleet.getNumberOfShips();
         this.numberOfRounds = numberOfRounds;
         this.numberOfHeatMaps = (int) (5 * Math.pow(2, Math.log10((double) numberOfRounds) - 1));;
@@ -81,6 +84,8 @@ public class ShooterComponentMemory {
     public void onFire(Position position) {
         usedPositions.add(position);
         this.lastFiredPosition = position;
+        this.lastShotNumber++;
+        this.remainingShots--;
     }
 
     public int getSizeX() {
