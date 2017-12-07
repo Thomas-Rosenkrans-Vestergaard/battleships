@@ -46,8 +46,20 @@ public class PlacerComponentMemory {
      */
     private int remainingEnemyShots;
 
+    /**
+     * The version number of the {@link HeatMapVersion} currently in use.
+     */
     private int currentHeatMapVersion = 0;
 
+    /**
+     * Creates a new {@link PlacerComponentMemory}.
+     *
+     * @param incomingHeatMap
+     * @param numberOfRounds
+     * @param numberOfHeatMaps
+     * @param sizeX
+     * @param sizeY
+     */
     public PlacerComponentMemory(HeatMap incomingHeatMap, int numberOfRounds, int numberOfHeatMaps, int sizeX, int sizeY) {
         this.incomingHeatMap = incomingHeatMap;
         this.numberOfRounds = numberOfRounds;

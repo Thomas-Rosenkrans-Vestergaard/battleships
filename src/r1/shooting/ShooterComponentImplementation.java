@@ -8,30 +8,30 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
+import r1.heatmap.HeatMap;
 import r1.shooting.shooter.SequenceShooter;
 
 public class ShooterComponentImplementation implements ShooterComponent {
 
-    private List<Shooter> shooters = new ArrayList<>();
     private ShooterComponentMemory memory;
     private SequenceShooter sequenceShooter;
 
     @Override
     public void startMatch(int rounds, Fleet ships, int sizeX, int sizeY) {
-
-        this.memory = new ShooterComponentMemory(sizeX, sizeY);
+        this.memory = new ShooterComponentMemory(rounds, ships, sizeX, sizeY);
         this.sequenceShooter = new SequenceShooter(memory);
-        this.shooters.add(sequenceShooter);
     }
 
     @Override
     public Position getFireCoordinates(Fleet enemyShips) {
-        return sequenceShooter.getFireCoordinates(enemyShips);
+        Position position = sequenceShooter.getFireCoordinates(enemyShips);
+        this.sequenceShooter.onFire(position);
+        return position;
     }
 
     @Override
     public void hitFeedBack(boolean hit, Fleet enemyShips) {
-
+        this.sequenceShooter.hitFeedBack(hit, enemyShips);
     }
 
     @Override

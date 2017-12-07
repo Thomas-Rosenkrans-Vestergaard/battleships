@@ -6,25 +6,24 @@ import r1.placement.placer.Placer;
 import battleship.interfaces.Board;
 import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
-import battleship.interfaces.Ship;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import r1.Area;
-import r1.PositionedArea;
 import r1.heatmap.HeatMap;
-import r1.heatmap.HeatMapArea;
-import r1.heatmap.HeatMapVersion;
-import r1.heatmap.HeatMapView;
-import r1.heatmap.NoActiveHeatMapVersionException;
 import r1.heatmap.UnknownHeatMapVersionException;
 
 public class PlacerComponentImplementation implements PlacerComponent {
 
+    /**
+     * The memory shared by all {@link Placer} instances.
+     */
     private PlacerComponentMemory memory;
+    
+    /**
+     * A {@link Placer} that takes into account the shooting pattern of the enemy.
+     */
     private Placer heatMapPlacerTactic;
+    
+    /**
+     * A {@link Placer} that places ships at random.
+     */
     private Placer randomPlacerTactic;
 
     @Override
