@@ -2,6 +2,9 @@ package r1.shooting.shooter;
 
 import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Queue;
 import r1.shooting.ShooterComponentMemory;
 
 /**
@@ -11,32 +14,29 @@ import r1.shooting.ShooterComponentMemory;
 public class SequenceShooter implements Shooter {
 
     private final ShooterComponentMemory memory;
-    private Position lastPosition;
+    private final Queue fireQueue = new ArrayDeque();
+    private final int sizeX;
+    private final int sizeY;
+    private final int numberOfPositions;
 
     public SequenceShooter(ShooterComponentMemory memory) {
         this.memory = memory;
-
-    }
-
-    public void reset() {
-        lastPosition = null;
+        this.sizeX = memory.sizeX;
+        this.sizeY = memory.sizeY;
+        this.numberOfPositions = sizeX * sizeY;
     }
 
     @Override
-    public Position getFireCoordinates(Fleet enemyShips) {
-
-        if (lastPosition == null) {
-            lastPosition = new Position(0, 0);
-            return lastPosition;
+    public void startRound(int round) {
+        fireQueue.clear();
+        for (int index = 0; index < numberOfPositions; index++) {
+            fireQueue.add(new Position(index % sizeX, index / sizeX));
         }
+    }
 
-        if (lastPosition.x >= memory.sizeX - 1) {
-            lastPosition = new Position(0, lastPosition.y + 1);
-            return lastPosition;
-        }
+    @Override
+    public void endRound(int round, int points, int enemyPoints) {
 
-        lastPosition = new Position(lastPosition.x + 1, lastPosition.y);
-        return lastPosition;
     }
 
     @Override
@@ -46,6 +46,11 @@ public class SequenceShooter implements Shooter {
 
     @Override
     public void onFire(Position position) {
+        fireQueue.remove(position);
+    }
 
+    @Override
+    public Queue<Position> getFireQueue() {
+        return fireQueue;
     }
 }
