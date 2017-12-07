@@ -1,6 +1,7 @@
 package r1;
 
 import java.util.List;
+import battleship.interfaces.Position;
 
 public class PositionedArea extends Area {
 

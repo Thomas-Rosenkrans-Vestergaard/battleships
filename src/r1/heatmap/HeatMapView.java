@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import r1.Area;
-import r1.Position;
+import battleship.interfaces.Position;
 import r1.PositionedArea;
 
 public class HeatMapView {
@@ -156,6 +156,21 @@ public class HeatMapView {
         return new HeatMapArea(minAvg, search.sizeX, search.sizeY, new Position(minX, minY));
     }
 
+    public Position getHottestPosition() {
+        int numberOfPositions = sizeX * sizeY;
+        int hottestIndex = -1;
+        int hottestValue = Integer.MIN_VALUE;
+        for (int currentIndex = 0; currentIndex < numberOfPositions; currentIndex++) {
+            int currentValue = map.get(currentIndex);
+            if (currentValue > hottestValue) {
+                hottestIndex = currentIndex;
+                hottestValue = currentValue;
+            }
+        }
+
+        return new Position(hottestIndex % sizeX, hottestIndex / sizeX);
+    }
+
     /**
      * Returns the hottest {@link Position} in the {@link HeatMapVersion}.
      *
@@ -163,8 +178,20 @@ public class HeatMapView {
      * {@link HeatMapVersion} if none are provided.
      * @return The hottest {@link Position}.
      */
-    public Position getHottestPosition(PositionedArea... in) {
-        return null;
+    public Position getHottestPosition(List<Position> in) {
+
+        int hottestIndex = -1;
+        int hottestValue = Integer.MIN_VALUE;
+        for (Position currentPosition : in) {
+            int currentIndex = currentPosition.y * sizeX + currentPosition.x;
+            int currentValue = map.get(currentIndex);
+            if (currentValue > hottestValue) {
+                hottestIndex = currentIndex;
+                hottestValue = currentValue;
+            }
+        }
+
+        return new Position(hottestIndex % sizeX, hottestIndex / sizeX);
     }
 
     /**
@@ -174,19 +201,64 @@ public class HeatMapView {
      * {@link HeatMapVersion} if none are provided.
      * @return The coldest {@link Position}.
      */
-    public Position getColdestPosition(PositionedArea... in) {
-        return null;
+    public Position getColdestPosition() {
+        int numberOfPositions = sizeX * sizeY;
+        int coldestIndex = -1;
+        int coldestValue = Integer.MAX_VALUE;
+        for (int currentIndex = 0; currentIndex < numberOfPositions; currentIndex++) {
+            int currentValue = map.get(currentIndex);
+            if (currentValue < coldestValue) {
+                coldestIndex = currentIndex;
+                coldestValue = currentValue;
+            }
+        }
+
+        return new Position(coldestIndex % sizeX, coldestIndex / sizeX);
     }
 
     /**
-     * Returns the hottest {@link Position} in the {@link HeatMapVersion}
-     * excluding {@link PositionedArea}(s) provided to <code>exclude</code>.
+     * Returns the coldest {@link Position} in the {@link HeatMapVersion}.
      *
-     * @param exclude The {@link PositionedArea}(s) to not seach in.
-     * @return The hottest {@link Position}.
+     * @param in The {@link PositionedArea}(s) to search in. Searches the entire
+     * {@link HeatMapVersion} if none are provided.
+     * @return The coldest {@link Position}.
      */
-    public Position getHottestPositionExclude(PositionedArea... exclude) {
-        return null;
+    public Position getColdestPosition(List<Position> in) {
+
+        int coldestIndex = -1;
+        int coldestValue = Integer.MAX_VALUE;
+        for (Position currentPosition : in) {
+            int currentIndex = currentPosition.y * sizeX + currentPosition.x;
+            int currentValue = map.get(currentIndex);
+            if (currentValue < coldestValue) {
+                coldestIndex = currentIndex;
+                coldestValue = currentValue;
+            }
+        }
+
+        return new Position(coldestIndex % sizeX, coldestIndex / sizeX);
+    }
+
+    public Position getHottestExclude(List<Position> excludes) {
+        Set<Integer> excludedIndexes = new HashSet<>();
+        for (Position exclude : excludes) {
+            excludedIndexes.add(sizeX * exclude.y + exclude.x);
+        }
+
+        int numberOfPositions = sizeX * sizeY;
+        int hottestIndex = -1;
+        int hottestValue = Integer.MIN_VALUE;
+        for (int currentIndex = 0; currentIndex < numberOfPositions; currentIndex++) {
+            if (!excludedIndexes.contains(currentIndex)) {
+                int currentValue = map.get(currentIndex);
+                if (currentValue > hottestValue) {
+                    hottestIndex = currentIndex;
+                    hottestValue = currentValue;
+                }
+            }
+        }
+
+        return new Position(hottestIndex % sizeX, hottestIndex / sizeX);
     }
 
     /**
@@ -196,8 +268,26 @@ public class HeatMapView {
      * @param exclude The {@link PositionedArea}(s) to not seach in.
      * @return The coldest {@link Position}.
      */
-    public Position getColdestExclude(PositionedArea... exclude) {
-        return null;
+    public Position getColdestExclude(List<Position> excludes) {
+        Set<Integer> excludedIndexes = new HashSet<>();
+        for (Position exclude : excludes) {
+            excludedIndexes.add(sizeX * exclude.y + exclude.x);
+        }
+
+        int numberOfPositions = sizeX * sizeY;
+        int coldestIndex = -1;
+        int coldestValue = Integer.MAX_VALUE;
+        for (int currentIndex = 0; currentIndex < numberOfPositions; currentIndex++) {
+            if (!excludedIndexes.contains(currentIndex)) {
+                int currentValue = map.get(currentIndex);
+                if (currentValue < coldestValue) {
+                    coldestIndex = currentIndex;
+                    coldestValue = currentValue;
+                }
+            }
+        }
+
+        return new Position(coldestIndex % sizeX, coldestIndex / sizeX);
     }
 
     /**
@@ -222,6 +312,7 @@ public class HeatMapView {
         return (double) sum / (areaSizeX * areaSizeY);
     }
 
+    
     public String toString() {
         StringBuilder builder = new StringBuilder();
         for (int y = sizeY - 1; y >= 0; y--) {

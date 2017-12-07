@@ -1,6 +1,6 @@
 package r1.heatmap;
 
-import r1.Position;
+import battleship.interfaces.Position;
 import r1.PositionedArea;
 
 public class HeatMapArea extends PositionedArea {
