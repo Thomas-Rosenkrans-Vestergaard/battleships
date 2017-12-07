@@ -3,24 +3,21 @@ package r1.shooting.shooter;
 import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
 import java.util.Queue;
+import r1.shooting.ShooterComponent;
+import r1.shooting.ShooterComponentMemory;
+import r1.shooting.ShotFeedBack;
+import r1.shooting.hunter.Hunter;
+import r1.shooting.hunter.HunterReport;
 
 public interface Shooter {
 
     public Queue<Position> getFireQueue();
 
+    public ShooterComponent getShooterComponent();
+    public ShooterComponentMemory getMemory();
+
     
-    
-    /**
-     * Called right after getFireCoordinates(...) to let your AI know if you hit
-     * something or not.
-     *
-     * Compare the number of ships in the enemyShips with that given in
-     * getFireCoordinates in order to see if you sunk a ship.
-     *
-     * @param hit boolean is true if your last shot hit a ship. False otherwise.
-     * @param enemyShips Fleet the enemy's ships.
-     */
-    public void hitFeedBack(boolean hit, Fleet enemyShips);
+    public void hitFeedBack(ShotFeedBack feedback);
 
     /**
      * Called when any {@link Shooter}s fire on the provided {@link Position}.
@@ -28,7 +25,7 @@ public interface Shooter {
      * @param position
      */
     void onFire(Position position);
-    
+
     /**
      * Called at the beginning of each round.
      *

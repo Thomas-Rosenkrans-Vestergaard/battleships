@@ -14,6 +14,10 @@ public class Position extends battleship.interfaces.Position {
         super(x, y);
     }
 
+    public Position(battleship.interfaces.Position position) {
+        this(position.x, position.y);
+    }
+
     /**
      * Finds the distance to the provided position. Returns -1 if the distance
      * cannot be found, like in cases when the two positions dont't share a
@@ -96,6 +100,30 @@ public class Position extends battleship.interfaces.Position {
         return null;
     }
 
+    public Position getNeighbor(Direction direction) {
+        if (direction == Direction.TOP) {
+            return top();
+        }
+
+        if (direction == Direction.BOTTOM) {
+            return bottom();
+        }
+
+        if (direction == Direction.LEFT) {
+            return left();
+        }
+
+        if (direction == Direction.RIGHT) {
+            return right();
+        }
+
+        if (direction == Direction.CENTER) {
+            return this;
+        }
+
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Returns the {@link Position} above <code>this</code>.
      *
@@ -132,6 +160,10 @@ public class Position extends battleship.interfaces.Position {
         return new Position(this.x + 1, this.y);
     }
 
+    public boolean inside(PositionedArea area) {
+        return this.x >= area.position.x && this.y >= area.position.y && this.x <= area.position.x + area.sizeX && this.y <= area.position.y + area.sizeY;
+    }
+
     /**
      * Returns the index of the position on a board with the provided sizeX.
      *
@@ -146,10 +178,34 @@ public class Position extends battleship.interfaces.Position {
      * Direction.
      */
     public enum Direction {
+
         TOP,
         BOTTOM,
         CENTER,
         LEFT,
-        RIGHT
+        RIGHT;
+
+        public Direction inverse() {
+            if (this == TOP) {
+                return BOTTOM;
+            }
+            if (this == BOTTOM) {
+                return TOP;
+            }
+            if (this == LEFT) {
+                return RIGHT;
+            }
+
+            if (this == RIGHT) {
+                return LEFT;
+            }
+
+            if (this == TOP) {
+                return BOTTOM;
+            }
+
+            throw new UnsupportedOperationException();
+
+        }
     }
 }

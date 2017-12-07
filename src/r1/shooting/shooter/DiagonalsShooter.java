@@ -4,40 +4,23 @@ import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Queue;
-import java.util.Set;
-import java.util.Stack;
+import r1.shooting.ShooterComponent;
 import r1.shooting.ShooterComponentMemory;
+import r1.shooting.ShotFeedBack;
+import r1.shooting.hunter.DefaultHunter;
+import r1.shooting.hunter.Hunter;
+import r1.shooting.hunter.HunterReport;
 
-/**
- *
- * @author Thomas
- */
 public class DiagonalsShooter implements Shooter {
 
-    public enum Mode {
-        SEEK,
-        HUNT,
-    }
-
-    private List<Shooter> tactics = new ArrayList<>();
+    private ShooterComponent shooterComponent;
     private ShooterComponentMemory memory;
-
-    private Position seekShot;
-    private Position huntShot;
-    private Mode currentMode = Mode.SEEK;
-    private int totalHits = 0;
-    private int shotIncrement = 4;
-
-    private boolean hitLastHunt;
-    private boolean sunkLastHunt;
-
     private Queue<Position> fireQueue;
 
-    public DiagonalsShooter(ShooterComponentMemory memory) {
+    public DiagonalsShooter(ShooterComponent component, ShooterComponentMemory memory) {
+        this.shooterComponent = component;
         this.memory = memory;
     }
 
@@ -71,14 +54,10 @@ public class DiagonalsShooter implements Shooter {
     }
 
     @Override
-    public void hitFeedBack(boolean hit, Fleet enemyShips) {
-
-        if (currentMode == Mode.SEEK && hit) {
-            currentMode = Mode.HUNT;
-        }
-
-        if (currentMode == Mode.HUNT) {
-            hitLastHunt = hit;
+    public void hitFeedBack(ShotFeedBack feedBack) {
+        if (feedBack.wasHit()) {
+            Hunter hunter = new DefaultHunter(this, feedBack.getPosition());
+            shooterComponent.onHunterActivated(hunter);
         }
     }
 
@@ -87,7 +66,11 @@ public class DiagonalsShooter implements Shooter {
 
     }
 
-    private boolean isValid(Position position) {
-        return position.x >= 0 && position.x < memory.sizeX && position.y >= 0 && position.y < memory.sizeY;
+    public ShooterComponentMemory getMemory() {
+        return memory;
+    }
+
+    public ShooterComponent getShooterComponent() {
+        return shooterComponent;
     }
 }

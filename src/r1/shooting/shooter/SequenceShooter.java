@@ -5,7 +5,11 @@ import battleship.interfaces.Position;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Queue;
+import r1.shooting.ShooterComponent;
 import r1.shooting.ShooterComponentMemory;
+import r1.shooting.ShotFeedBack;
+import r1.shooting.hunter.Hunter;
+import r1.shooting.hunter.HunterReport;
 
 /**
  *
@@ -13,13 +17,15 @@ import r1.shooting.ShooterComponentMemory;
  */
 public class SequenceShooter implements Shooter {
 
+    private final ShooterComponent shooterComponent;
     private final ShooterComponentMemory memory;
     private final Queue fireQueue = new ArrayDeque();
     private final int sizeX;
     private final int sizeY;
     private final int numberOfPositions;
 
-    public SequenceShooter(ShooterComponentMemory memory) {
+    public SequenceShooter(ShooterComponent component, ShooterComponentMemory memory) {
+        this.shooterComponent = component;
         this.memory = memory;
         this.sizeX = memory.sizeX;
         this.sizeY = memory.sizeY;
@@ -40,7 +46,7 @@ public class SequenceShooter implements Shooter {
     }
 
     @Override
-    public void hitFeedBack(boolean hit, Fleet enemyShips) {
+    public void hitFeedBack(ShotFeedBack feedBack) {
 
     }
 
@@ -52,5 +58,13 @@ public class SequenceShooter implements Shooter {
     @Override
     public Queue<Position> getFireQueue() {
         return fireQueue;
+    }
+
+    public ShooterComponentMemory getMemory() {
+        return memory;
+    }
+
+    public ShooterComponent getShooterComponent() {
+        return shooterComponent;
     }
 }

@@ -2,6 +2,8 @@ package r1.shooting;
 
 import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
+import r1.shooting.hunter.Hunter;
+import r1.shooting.hunter.HunterReport;
 
 /* 4 Matrix
 
@@ -51,6 +53,9 @@ import battleship.interfaces.Position;
  */
 public interface ShooterComponent
 {
+    
+    public void onHunterActivated(Hunter hunter);
+    public void onHunterFinished(Hunter hunter, HunterReport report);
 
     /**
      * Called in the beginning of each match to inform about the number of

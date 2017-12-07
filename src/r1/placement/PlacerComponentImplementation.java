@@ -30,7 +30,7 @@ public class PlacerComponentImplementation implements PlacerComponent {
     public void startMatch(int rounds, Fleet ships, int sizeX, int sizeY) {
         HeatMap incomingHeatMap = new HeatMap(sizeX, sizeY);
         incomingHeatMap.makeVersion(true);
-        int numberOfHeatMaps = (int) (5 * Math.pow(2, Math.log10((double) rounds) - 1));
+        int numberOfHeatMaps = (int) Math.min(1, (5 * Math.pow(2, Math.log10((double) rounds) - 1)));
         this.memory = new PlacerComponentMemory(incomingHeatMap, rounds, numberOfHeatMaps, sizeX, sizeY);
         this.heatMapPlacerTactic = new HeatMapPlacer(this.memory);
         this.randomPlacerTactic = new RandomPlacer(this.memory);
