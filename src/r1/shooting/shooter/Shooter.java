@@ -1,30 +1,44 @@
 package r1.shooting.shooter;
 
-import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
 import java.util.Queue;
 import r1.shooting.ShooterComponent;
 import r1.shooting.ShooterComponentMemory;
-import r1.shooting.ShotFeedBack;
-import r1.shooting.hunter.Hunter;
-import r1.shooting.hunter.HunterReport;
+import r1.shooting.ShotFeedback;
 
 public interface Shooter {
 
-    public Queue<Position> getFireQueue();
-
+    /**
+     * Returns the parent {@link ShooterComponent}.
+     *
+     * @return The parent {@link ShooterComponent}.
+     */
     public ShooterComponent getShooterComponent();
-    public ShooterComponentMemory getMemory();
-
-    
-    public void hitFeedBack(ShotFeedBack feedback);
 
     /**
-     * Called when any {@link Shooter}s fire on the provided {@link Position}.
+     * Returns the {@link Position}s to fire on. The {@link ShooterComponent}
+     * will select another {@link Shooter} when an empty {@link Queue} is
+     * returned.
      *
-     * @param position
+     * @return The {@link Position}s to fire on.
      */
-    void onFire(Position position);
+    public Queue<Position> getFireQueue();
+
+    /**
+     * Provides the {@link Shooter} with {@link ShotFeedback} on its last fired
+     * shot.
+     *
+     * @param feedback The object carrying information on the shot.
+     */
+    public void onFeedBack(ShotFeedback feedback);
+
+    /**
+     * Called when other {@link Shooter}s from the same {@link ShooterComponent}
+     * fires a shot.
+     *
+     * @param feedback The object carrying information on the shot.
+     */
+    void onSecondaryFeedBack(ShotFeedback feedback);
 
     /**
      * Called at the beginning of each round.
@@ -34,8 +48,7 @@ public interface Shooter {
     public void startRound(int round);
 
     /**
-     * Called at the end of each round to let you know if you won or lost.
-     * Compare your points with the enemy's to see who won.
+     * Called at the end of each round.
      *
      * @param round int current round number.
      * @param points your points this round: 100 - number of shot used to sink

@@ -2,71 +2,12 @@ package r1.shooting;
 
 import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
-import r1.shooting.hunter.Hunter;
-import r1.shooting.hunter.HunterReport;
+import r1.shooting.shooter.Shooter;
 
-/* 4 Matrix
+public interface ShooterComponent {
 
-  for (int j = 0; j < 10; j++) //j svarer til sizeY
-        {
-            for (int i = 19; i >= 0; i -= 4) //i svarer til 2'sizeX
-            {
-                if ((i - j) >= 0 && (i - j) < 10)
-                {
-                    System.out.println(i - j + ", " + j);
-                }
-            }
-
-        }
-        
-   3 Matrix 
-
-        for (int j = 0; j < 10; j++) //j svarer til sizeY
-        {
-            
-            for (int i = 19; i >= 0; i -= 3) //i svarer til 2'sizeX
-            {
-                if ((i - j) >= 0 && (i - j) < 10)
-                {
-                    counter++;
-                    System.out.println(counter+ " " +(i - j) + ", " + j);
-                }
-            }
-
-        }
-
-   2 Matrix
-
-             for (int j = 0; j < 10; j++) //j svarer til sizeY
-        {
-            for (int i = 19; i >= 0; i -= 2) //i svarer til 2'sizeX
-            {
-                if ((i - j) >= 0 && (i - j) < 10)
-                {
-                    System.out.println(i - j + ", " + j);
-                }
-            }
-
-        }
-
-
- */
-public interface ShooterComponent
-{
-    
-    public void onHunterActivated(Hunter hunter);
-    public void onHunterFinished(Hunter hunter, HunterReport report);
-
-    /**
-     * Called in the beginning of each match to inform about the number of
-     * rounds being played.
-     *
-     * @param rounds The number of rounds played in a match.
-     * @param ships The ships in each round.
-     * @param sizeX The horizontal size of the board.
-     * @param sizeY The vertical size of the board.
-     */
-    public void startMatch(int rounds, Fleet ships, int sizeX, int sizeY);
+    public void pushShooter(Shooter shooter);
+    public void removeShooter(Shooter shooter);
 
     /**
      * Called by the Game application to get the Position of your shot.

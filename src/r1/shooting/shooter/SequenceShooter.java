@@ -1,20 +1,12 @@
 package r1.shooting.shooter;
 
-import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
 import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.Queue;
 import r1.shooting.ShooterComponent;
 import r1.shooting.ShooterComponentMemory;
-import r1.shooting.ShotFeedBack;
-import r1.shooting.hunter.Hunter;
-import r1.shooting.hunter.HunterReport;
+import r1.shooting.ShotFeedback;
 
-/**
- *
- * @author Thomas
- */
 public class SequenceShooter implements Shooter {
 
     private final ShooterComponent shooterComponent;
@@ -46,13 +38,13 @@ public class SequenceShooter implements Shooter {
     }
 
     @Override
-    public void hitFeedBack(ShotFeedBack feedBack) {
-
+    public void onFeedBack(ShotFeedback feedback) {
+        fireQueue.remove(feedback.getPosition());
     }
 
     @Override
-    public void onFire(Position position) {
-        fireQueue.remove(position);
+    public void onSecondaryFeedBack(ShotFeedback feedback) {
+        fireQueue.remove(feedback.getPosition());
     }
 
     @Override
@@ -60,10 +52,7 @@ public class SequenceShooter implements Shooter {
         return fireQueue;
     }
 
-    public ShooterComponentMemory getMemory() {
-        return memory;
-    }
-
+    @Override
     public ShooterComponent getShooterComponent() {
         return shooterComponent;
     }

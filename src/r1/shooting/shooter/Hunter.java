@@ -1,53 +1,39 @@
-package r1.shooting.hunter;
+package r1.shooting.shooter;
 
-import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
 import r1.Position.Direction;
 import r1.PositionedArea;
 import r1.shooting.ShooterComponent;
 import r1.shooting.ShooterComponentMemory;
-import r1.shooting.ShotFeedBack;
-import r1.shooting.shooter.Shooter;
+import r1.shooting.ShotFeedback;
 
-public class DefaultHunter implements Hunter {
+public class Hunter implements Shooter {
 
     public enum Stage {
         FIND_DIRECTION,
-        FOLLOW,
+        FOLLOW_DIRECTION,
     }
 
-    private Shooter shooter;
+    private final ShooterComponent shooterComponent;
+    private final r1.Position initialPosition;
+    private final PositionedArea boardArea;
+    private final ShooterComponentMemory memory;
 
-    private r1.Position initialPosition;
-    private ShooterComponent shooterComponent;
-    private ShooterComponentMemory memory;
-    private Queue<Position> fireQueue = new ArrayDeque<>();
-    private PositionedArea boardArea;
-    private State state = State.ACTIVE;
     private Stage stage = Stage.FIND_DIRECTION;
-    private ShotFeedBack currentFeedBack;
+    private ShotFeedback currentFeedBack;
 
-    /**
-     * State: Find direction.
-     */
     private Stack<Direction> excludedDirections;
     private Direction lastCheckedDirection = null;
 
-    /**
-     * State: Follow.
-     */
     private Direction currentFollowDirection = null;
 
-    public DefaultHunter(Shooter shooter, Position initialPosition) {
-        this.shooter = shooter;
-        this.shooterComponent = shooter.getShooterComponent();
+    public Hunter(ShooterComponent shooterComponent, ShooterComponentMemory memory, Position initialPosition) {
+        this.shooterComponent = shooterComponent;
         this.initialPosition = new r1.Position(initialPosition.x, initialPosition.y);
-        this.memory = shooter.getMemory();
+        this.memory = memory;
         this.boardArea = new PositionedArea(memory.sizeX, memory.sizeY, new Position(0, 0));
         this.excludedDirections = findExcludedDirections(initialPosition);
     }
@@ -57,22 +43,22 @@ public class DefaultHunter implements Hunter {
         r1.Position betterPosition = new r1.Position(position);
 
         r1.Position top = betterPosition.top();
-        if (memory.hasBeenFiredAt(top)) {
+        if (memory.hasBeenFiredAt(top) || !top.inside(boardArea)) {
             directions.add(Direction.TOP);
         }
 
         r1.Position bottom = betterPosition.bottom();
-        if (memory.hasBeenFiredAt(bottom)) {
+        if (memory.hasBeenFiredAt(bottom) || !bottom.inside(boardArea)) {
             directions.add(Direction.BOTTOM);
         }
 
         r1.Position left = betterPosition.left();
-        if (memory.hasBeenFiredAt(left)) {
+        if (memory.hasBeenFiredAt(left) || !left.inside(boardArea)) {
             directions.add(Direction.LEFT);
         }
 
         r1.Position right = betterPosition.right();
-        if (memory.hasBeenFiredAt(right)) {
+        if (memory.hasBeenFiredAt(right) || right.inside(boardArea)) {
             directions.add(Direction.RIGHT);
         }
 
@@ -81,16 +67,14 @@ public class DefaultHunter implements Hunter {
 
     @Override
     public Queue<Position> getFireQueue() {
-        fireQueue.clear();
-        
-        System.out.println("getFireQueue:");
-        System.out.println(this);
-        
+
+        System.out.println("STAGE=" + stage);
+
         if (stage == Stage.FIND_DIRECTION) {
             return fireFindDirection();
         }
 
-        if (stage == Stage.FOLLOW) {
+        if (stage == Stage.FOLLOW_DIRECTION) {
             return fireFollow();
         }
 
@@ -103,6 +87,7 @@ public class DefaultHunter implements Hunter {
             throw new IllegalStateException("Too many excluded directions.");
         }
 
+        Queue<Position> fireQueue = new ArrayDeque<>();
         Direction nextDirection = getNextPossibleDirection();
         System.out.println(nextDirection);
         Position position = initialPosition.getNeighbor(nextDirection);
@@ -151,7 +136,7 @@ public class DefaultHunter implements Hunter {
         r1.Position position = currentFeedBack.getPosition();
         r1.Position neighbor = position.getNeighbor(lastCheckedDirection);
 
-        if (!neighbor.inside(boardArea)) {
+        if (!neighbor.inside(boardArea) || memory.hasBeenFiredAt(position)) {
             return inverseFollow();
         }
 
@@ -163,43 +148,60 @@ public class DefaultHunter implements Hunter {
         Direction inverseDirection = lastCheckedDirection.inverse();
         r1.Position nextPosition = currentFeedBack.getPosition();
 
-        while (true) {
+        System.out.println("lastCheckedDirection=" + lastCheckedDirection);
+        System.out.println("inverse=" + inverseDirection);
+
+        // TODO: Iterate specific number of times.
+        for(int x = 0; x < 6; x++) {
             r1.Position testPosition = nextPosition.getNeighbor(inverseDirection);
+            System.out.println("testPosition=" + testPosition);
+            System.out.println("eval=" + (testPosition.inside(boardArea) && !memory.hasBeenFiredAt(testPosition)));
             if (testPosition.inside(boardArea) && !memory.hasBeenFiredAt(testPosition)) {
                 nextPosition = testPosition;
-                continue;
+                break;
             }
-
-            break;
         }
 
         Queue fireQueue = new ArrayDeque();
+        this.lastCheckedDirection = inverseDirection;
         fireQueue.add(nextPosition);
         return fireQueue;
     }
 
     @Override
-    public void hitFeedBack(ShotFeedBack feedBack) {
+    public void onFeedBack(ShotFeedback feedback) {
 
-        this.currentFeedBack = feedBack;
+        this.currentFeedBack = feedback;
 
-        if (feedBack.sunkShip()) {
-            this.state = State.FINISHED;
-            this.shooter.getShooterComponent().onHunterFinished(this, new HunterReport());
+        System.out.println("Hunter:onFeedBack=");
+        System.out.println(feedback);
+        System.out.println("before=" + feedback.getPreviousEnemyFleet());
+        System.out.println("after=" + feedback.getPreviousEnemyFleet());
+        System.out.println("hash = " + System.identityHashCode(feedback.getPreviousEnemyFleet()) + ":" + System.identityHashCode(feedback.getCurrentEnemyFleet()));
+        System.out.println("Sunkship=" + feedback.sunkShip());
+
+        if (feedback.sunkShip()) {
+            System.out.println("REMOVED HUNTER");
+            this.shooterComponent.removeShooter(this);
             return;
         }
 
-        if (stage == Stage.FIND_DIRECTION && feedBack.wasHit()) {
-            this.stage = Stage.FOLLOW;
+        if (stage == Stage.FIND_DIRECTION && feedback.wasHit()) {
+            this.stage = Stage.FOLLOW_DIRECTION;
             this.currentFollowDirection = lastCheckedDirection;
             this.excludedDirections.add(lastCheckedDirection);
             return;
         }
 
-        if (stage == Stage.FIND_DIRECTION && !feedBack.wasHit()) {
+        if (stage == Stage.FIND_DIRECTION && !feedback.wasHit()) {
             this.excludedDirections.add(lastCheckedDirection);
             return;
         }
+    }
+
+    @Override
+    public void onSecondaryFeedBack(ShotFeedback feedback) {
+
     }
 
     @Override
@@ -209,7 +211,7 @@ public class DefaultHunter implements Hunter {
 
     @Override
     public void endRound(int round, int points, int enemyPoints) {
-        System.out.println(this);
+
     }
 
     @Override
@@ -219,6 +221,6 @@ public class DefaultHunter implements Hunter {
 
     @Override
     public String toString() {
-        return "DefaultHunter{" + "shooter=" + shooter + ", initialPosition=" + initialPosition + ", shooterComponent=" + shooterComponent + ", memory=" + memory + ", fireQueue=" + fireQueue + ", boardArea=" + boardArea + ", state=" + state + ", stage=" + stage + ", currentFeedBack=" + currentFeedBack + ", excludedDirections=" + excludedDirections + ", lastCheckedDirection=" + lastCheckedDirection + ", currentFollowDirection=" + currentFollowDirection + '}';
+        return "Hunter{" + "shooterComponent=" + shooterComponent + ", initialPosition=" + initialPosition + ", boardArea=" + boardArea + ", memory=" + memory + ", stage=" + stage + ", currentFeedBack=" + currentFeedBack + ", excludedDirections=" + excludedDirections + ", lastCheckedDirection=" + lastCheckedDirection + ", currentFollowDirection=" + currentFollowDirection + '}';
     }
 }

@@ -3,20 +3,15 @@ package r1.shooting.shooter;
 import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Queue;
 import r1.shooting.ShooterComponent;
 import r1.shooting.ShooterComponentMemory;
-import r1.shooting.ShotFeedBack;
-import r1.shooting.hunter.DefaultHunter;
-import r1.shooting.hunter.Hunter;
-import r1.shooting.hunter.HunterReport;
+import r1.shooting.ShotFeedback;
 
 public class DiagonalsShooter implements Shooter {
 
-    private ShooterComponent shooterComponent;
-    private ShooterComponentMemory memory;
+    private final ShooterComponent shooterComponent;
+    private final ShooterComponentMemory memory;
     private Queue<Position> fireQueue;
 
     public DiagonalsShooter(ShooterComponent component, ShooterComponentMemory memory) {
@@ -32,9 +27,9 @@ public class DiagonalsShooter implements Shooter {
     @Override
     public void startRound(int round) {
 
-        fireQueue = new ArrayDeque<Position>();
+        fireQueue = new ArrayDeque<>();
 
-        for (int i = 4; i > 0; i--) {
+        for (int i = 4; i > 0; i -= 2) {
             for (int x = 0; x < memory.sizeX; x++) {
                 for (int y = 0; y < memory.sizeY; y++) {
                     if ((x - y) % i == 0) {
@@ -54,15 +49,15 @@ public class DiagonalsShooter implements Shooter {
     }
 
     @Override
-    public void hitFeedBack(ShotFeedBack feedBack) {
-        if (feedBack.wasHit()) {
-            Hunter hunter = new DefaultHunter(this, feedBack.getPosition());
-            shooterComponent.onHunterActivated(hunter);
+    public void onFeedBack(ShotFeedback feedBack) {
+        if (feedBack.wasHit() && !feedBack.sunkShip()) {
+            Shooter hunter = new Hunter(this.shooterComponent, memory, feedBack.getPosition());
+            shooterComponent.pushShooter(hunter);
         }
     }
 
     @Override
-    public void onFire(Position position) {
+    public void onSecondaryFeedBack(ShotFeedback feedback) {
 
     }
 

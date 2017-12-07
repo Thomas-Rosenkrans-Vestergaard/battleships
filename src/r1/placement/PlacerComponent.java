@@ -7,17 +7,6 @@ import battleship.interfaces.Position;
 public interface PlacerComponent {
 
     /**
-     * Called in the beginning of each match to inform about the number of
-     * rounds being played.
-     *
-     * @param rounds The number of rounds played in a match.
-     * @param ships The ships in each round.
-     * @param sizeX The horizontal size of the board.
-     * @param sizeY The vertical size of the board.
-     */
-    public void startMatch(int rounds, Fleet ships, int sizeX, int sizeY);
-
-    /**
      * The method called when its time for the AI to place ships on the board
      * (at the beginning of each round).
      *

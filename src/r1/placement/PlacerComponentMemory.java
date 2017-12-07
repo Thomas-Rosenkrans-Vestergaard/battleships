@@ -1,9 +1,6 @@
 package r1.placement;
 
-import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import r1.heatmap.HeatMap;
 import r1.heatmap.HeatMapOutOfBoundsException;
 import r1.heatmap.HeatMapVersion;
@@ -51,24 +48,14 @@ public class PlacerComponentMemory {
      */
     private int currentHeatMapVersion = 0;
 
-    /**
-     * Creates a new {@link PlacerComponentMemory}.
-     *
-     * @param incomingHeatMap
-     * @param numberOfRounds
-     * @param numberOfHeatMaps
-     * @param sizeX
-     * @param sizeY
-     */
     public PlacerComponentMemory(HeatMap incomingHeatMap, int numberOfRounds, int numberOfHeatMaps, int sizeX, int sizeY) {
         this.incomingHeatMap = incomingHeatMap;
         this.numberOfRounds = numberOfRounds;
         this.numberOfHeatMaps = numberOfHeatMaps;
         this.sizeX = sizeX;
         this.sizeY = sizeY;
-        this.remainingEnemyShots = sizeX * sizeY;
     }
-
+    
     /**
      * Called at the beginning of each round.
      *

@@ -2,94 +2,85 @@ package r1.shooting;
 
 import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.Queue;
-import r1.shooting.hunter.Hunter;
-import r1.shooting.hunter.HunterReport;
+import java.util.Stack;
 import r1.shooting.shooter.DiagonalsShooter;
 import r1.shooting.shooter.SequenceShooter;
 import r1.shooting.shooter.Shooter;
 
 public class ShooterComponentImplementation implements ShooterComponent {
 
-    private List<Shooter> shooters = new ArrayList<>();
-    private ShooterComponentMemory memory;
-    private SequenceShooter sequenceShooter;
-    private DiagonalsShooter diagonalsShooter;
-    private Shooter activeShooter;
+    private final Stack<Shooter> shooters = new Stack<>();
+    private final ShooterComponentMemory memory;
     private Fleet previousEnemyFleet;
-    private Queue<Hunter> hunterQueue = new ArrayDeque();
-    private Hunter currentHunter;
-    
-    @Override
-    public void startMatch(int rounds, Fleet ships, int sizeX, int sizeY) {
+    private int previousNumberOfShips;
+    private Shooter previouslyUsedShooter;
 
-        this.memory = new ShooterComponentMemory(rounds, ships, sizeX, sizeY);
-        this.previousEnemyFleet = ships;
+    public ShooterComponentImplementation(ShooterComponentMemory memory) {
 
-        this.sequenceShooter = new SequenceShooter(this, memory);
-        this.shooters.add(this.sequenceShooter);
-
-        this.diagonalsShooter = new DiagonalsShooter(this, memory);
-        this.shooters.add(this.diagonalsShooter);
-
-        this.activeShooter = this.diagonalsShooter;
+        System.out.println("CONSTRUCOTR");
+        this.memory = memory;
+        this.shooters.add(new DiagonalsShooter(this, memory));
+        //this.shooters.add(new SequenceShooter(this, memory));
     }
 
     @Override
-    public void onHunterActivated(Hunter hunter) {
-        this.hunterQueue.add(hunter);
+    public void pushShooter(Shooter shooter) {
+        this.shooters.push(shooter);
     }
 
     @Override
-    public void onHunterFinished(Hunter hunter, HunterReport report) {
-        this.hunterQueue.remove(hunter);
-        this.currentHunter = null;
+    public void removeShooter(Shooter shooter) {
+        this.shooters.remove(shooter);
     }
 
     @Override
     public Position getFireCoordinates(Fleet enemyShips) {
-        if (this.hunterQueue.isEmpty()) {
-            Queue<Position> fireQueue = this.activeShooter.getFireQueue();
-            Position position = fireQueue.poll();
-            memory.setLastFiredPosition(position);
-            return position;
-        } else {
-            Hunter hunter = hunterQueue.peek();
-            this.currentHunter = hunter;
-            if (hunter == null) {
-                throw new IllegalStateException("Null hunter.");
-            }
+        System.out.println("getFireCoordinates");
+        System.out.println("currentEnemyShips=" + previousEnemyFleet.getNumberOfShips());
+        System.out.println(this);
+        Shooter shooter = shooters.peek();
+        System.out.println("numberOfShooters=" + shooters.size());
+        System.out.println("using=" + shooter.getClass().getName());
 
-            Queue<Position> fireQueue = hunter.getFireQueue();
-            Position position = fireQueue.poll();
-            memory.setLastFiredPosition(position);
-            return position;
+        if (shooter == null) {
+            throw new IllegalStateException("No more shooters.");
         }
+
+        Queue<Position> fireQueue = shooter.getFireQueue();
+        Position position = fireQueue.poll();
+        this.memory.setLastFiredPosition(position);
+        this.previouslyUsedShooter = shooter;
+        return position;
     }
 
     @Override
     public void hitFeedBack(boolean hit, Fleet enemyShips) {
-        Position lastFiredPosition = memory.getLastFiredPosition();
-        ShotFeedBack feedBack = new ShotFeedBack(lastFiredPosition, hit, this.previousEnemyFleet, enemyShips);
-        this.activeShooter.hitFeedBack(feedBack);
-        for (Shooter shooter : shooters) {
-            if (shooter != this.activeShooter) {
-                shooter.onFire(lastFiredPosition);
+        System.out.println("hitFeedBack");
+        System.out.println("preEns=" + previousEnemyFleet.getNumberOfShips());
+        System.out.println("enemyShips=" + enemyShips.getNumberOfShips());
+        Position position = memory.getLastFiredPosition();
+        ShotFeedback feedback = new ShotFeedback(previouslyUsedShooter, position, hit, previousNumberOfShips, enemyShips.getNumberOfShips());
+        Enumeration<Shooter> shootersEnumeration = shooters.elements();
+        while (shootersEnumeration.hasMoreElements()) {
+            Shooter shooter = shootersEnumeration.nextElement();
+            if (shooter == previouslyUsedShooter) {
+                shooter.onFeedBack(feedback);
+            } else {
+                shooter.onSecondaryFeedBack(feedback);
             }
         }
 
-        if (!hunterQueue.isEmpty() && this.currentHunter != null) {
-            hunterQueue.peek().hitFeedBack(feedBack);
-        }
-
         this.previousEnemyFleet = enemyShips;
+        this.previousNumberOfShips = enemyShips.getNumberOfShips();
     }
 
     @Override
     public void startRound(int round) {
+        this.previousEnemyFleet = memory.getInitialFleet();
+        this.previousNumberOfShips = this.previousEnemyFleet.getNumberOfShips();
         for (Shooter shooter : shooters) {
             shooter.startRound(round);
         }

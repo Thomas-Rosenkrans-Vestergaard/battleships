@@ -8,8 +8,13 @@ import battleship.interfaces.BattleshipsPlayer;
 import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
 import battleship.interfaces.Board;
+import r1.heatmap.HeatMap;
 import r1.placement.PlacerComponent;
+import r1.placement.PlacerComponentImplementation;
+import r1.placement.PlacerComponentMemory;
 import r1.shooting.ShooterComponent;
+import r1.shooting.ShooterComponentImplementation;
+import r1.shooting.ShooterComponentMemory;
 
 /**
  *
@@ -17,16 +22,8 @@ import r1.shooting.ShooterComponent;
  */
 public class AI implements BattleshipsPlayer {
 
-    private PlacerComponent placer;
-    private ShooterComponent shooter;
-
-    /**
-     * Creates a new {@link AI}.
-     */
-    public AI(PlacerComponent placer, ShooterComponent shooter) {
-        this.placer = placer;
-        this.shooter = shooter;
-    }
+    private PlacerComponent placerComponent;
+    private ShooterComponent shooterComponent;
 
     /**
      * Called in the beginning of each match to inform about the number of
@@ -39,88 +36,48 @@ public class AI implements BattleshipsPlayer {
      */
     @Override
     public void startMatch(int rounds, Fleet ships, int sizeX, int sizeY) {
-        placer.startMatch(rounds, ships, sizeX, sizeY);
-        shooter.startMatch(rounds, ships, sizeX, sizeY);
+        this.placerComponent = buildPlacerComponent(rounds, ships, sizeX, sizeY);
+        this.shooterComponent = buildShooterCompoment(rounds, ships, sizeX, sizeY);
     }
 
-    /**
-     * The method called when its time for the AI to place ships on the board
-     * (at the beginning of each round).
-     *
-     * The Ship object to be placed MUST be taken from the Fleet given (do not
-     * create your own Ship objects!).
-     *
-     * A ship is placed by calling the board.placeShip(..., Ship ship, ...) for
-     * each ship in the fleet (see board interface for details on placeShip()).
-     *
-     * A player is not required to place all the ships. Ships placed outside the
-     * board or on top of each other are wrecked.
-     *
-     * @param fleet Fleet all the ships that a player should place.
-     * @param board Board the board were the ships must be placed.
-     */
     @Override
     public void placeShips(Fleet fleet, Board board) {
         try {
-            placer.placeShips(fleet, board);
+            placerComponent.placeShips(fleet, board);
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(0);
         }
     }
 
-    /**
-     * Called every time the enemy has fired a shot.
-     *
-     * The purpose of this method is to allow the AI to react to the enemy's
-     * incoming fire and place his/her ships differently next round.
-     *
-     * @param pos Position of the enemy's shot
-     */
     @Override
     public void incoming(Position pos) {
         try {
-            placer.incoming(pos);
+            placerComponent.incoming(pos);
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(0);
         }
     }
 
-    /**
-     * Called by the Game application to get the Position of your shot.
-     * hitFeedBack(...) is called right after this method.
-     *
-     * @param enemyShips Fleet the enemy's ships. Compare this to the Fleet
-     * supplied in the hitFeedBack(...) method to see if you have sunk any
-     * ships.
-     *
-     * @return Position of you next shot.
-     */
     @Override
     public Position getFireCoordinates(Fleet enemyShips) {
         try {
-            return shooter.getFireCoordinates(enemyShips);
+            return shooterComponent.getFireCoordinates(enemyShips);
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(0);
             return null;
         }
     }
 
-    /**
-     * Called right after getFireCoordinates(...) to let your AI know if you hit
-     * something or not.
-     *
-     * Compare the number of ships in the enemyShips with that given in
-     * getFireCoordinates in order to see if you sunk a ship.
-     *
-     * @param hit boolean is true if your last shot hit a ship. False otherwise.
-     * @param enemyShips Fleet the enemy's ships.
-     */
     @Override
     public void hitFeedBack(boolean hit, Fleet enemyShips) {
         try {
-            shooter.hitFeedBack(hit, enemyShips);
+            shooterComponent.hitFeedBack(hit, enemyShips);
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(0);
         }
     }
 
@@ -132,10 +89,11 @@ public class AI implements BattleshipsPlayer {
     @Override
     public void startRound(int round) {
         try {
-            placer.startRound(round);
-            shooter.startRound(round);
+            placerComponent.startRound(round);
+            shooterComponent.startRound(round);
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(0);
         }
     }
 
@@ -152,10 +110,11 @@ public class AI implements BattleshipsPlayer {
     @Override
     public void endRound(int round, int points, int enemyPoints) {
         try {
-            placer.endRound(round, points, enemyPoints);
-            shooter.endRound(round, points, enemyPoints);
+            placerComponent.endRound(round, points, enemyPoints);
+            shooterComponent.endRound(round, points, enemyPoints);
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(0);
         }
     }
 
@@ -170,10 +129,24 @@ public class AI implements BattleshipsPlayer {
     @Override
     public void endMatch(int won, int lost, int draw) {
         try {
-            placer.endMatch(won, lost, draw);
-            shooter.endMatch(won, lost, draw);
+            placerComponent.endMatch(won, lost, draw);
+            shooterComponent.endMatch(won, lost, draw);
         } catch (Exception e) {
             e.printStackTrace();
+            System.exit(0);
         }
+    }
+
+    private PlacerComponent buildPlacerComponent(int rounds, Fleet ships, int sizeX, int sizeY) {
+        HeatMap incomingHeatMap = new HeatMap(sizeX, sizeY);
+        incomingHeatMap.makeVersion(true);
+        int numberOfHeatMaps = (int) Math.max(1, (5 * Math.pow(2, Math.log10(rounds) - 1)));
+        PlacerComponentMemory placerComponentMemory = new PlacerComponentMemory(incomingHeatMap, rounds, numberOfHeatMaps, sizeX, sizeY);
+        return new PlacerComponentImplementation(placerComponentMemory);
+    }
+
+    private ShooterComponent buildShooterCompoment(int rounds, Fleet ships, int sizeX, int sizeY) {
+        ShooterComponentMemory shooterComponentMemory = new ShooterComponentMemory(rounds, ships, sizeX, sizeY);
+        return new ShooterComponentImplementation(shooterComponentMemory);
     }
 }

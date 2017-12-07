@@ -9,7 +9,7 @@ public class PositionedArea extends Area {
      * The {@link Position} of the {@link PositionedArea}. The {@link Position}
      * is the lowest-left square of the area.
      */
-    public Position position;
+    public final Position position;
 
     /**
      * Creates a new {@link PositionedArea}.

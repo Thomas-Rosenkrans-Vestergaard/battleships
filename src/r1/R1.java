@@ -17,12 +17,12 @@ import tournament.player.PlayerFactory;
 public class R1 implements PlayerFactory<BattleshipsPlayer> {
 
     public R1() {
-    
+
     }
 
     @Override
     public BattleshipsPlayer getNewInstance() {
-        return new AI(new PlacerComponentImplementation(), new ShooterComponentImplementation());
+        return new AI();
     }
 
     @Override

@@ -2,10 +2,8 @@ package r1.shooting;
 
 import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import r1.heatmap.HeatMap;
@@ -16,17 +14,17 @@ public class ShooterComponentMemory {
      * The size of the x-axis.
      */
     public final int sizeX;
-    
+
     /**
      * The size of the y-axis.
      */
     public final int sizeY;
-    
+
     /**
      * The number of rounds to be played.
      */
     private final int numberOfRounds;
-    
+    private final Fleet initialEnemyFleet;
     private final int numberOfHeatMaps;
     private final int numberOfShips;
     private final HeatMap hitHeatMap;
@@ -47,6 +45,7 @@ public class ShooterComponentMemory {
         this.numberOfRounds = numberOfRounds;
         this.numberOfHeatMaps = (int) (5 * Math.pow(2, Math.log10((double) numberOfRounds) - 1));;
         this.hitHeatMap = new HeatMap(sizeX, sizeY);
+        this.initialEnemyFleet = fleet;
 
         for (int x = 0; x < this.numberOfShips; x++) {
             int size = fleet.getShip(x).size();
@@ -57,6 +56,10 @@ public class ShooterComponentMemory {
 
     }
 
+    public Fleet getInitialFleet() {
+        return initialEnemyFleet;
+    }
+    
     public int getNumberOfShips() {
         return numberOfShips;
     }
@@ -73,14 +76,14 @@ public class ShooterComponentMemory {
         return usedPositions.contains(position);
     }
 
-    public Position getLastFiredPosition(){
+    public Position getLastFiredPosition() {
         return lastFiredPosition;
     }
 
     public void setLastFiredPosition(Position lastFiredPosition) {
         this.lastFiredPosition = lastFiredPosition;
     }
-    
+
     public void onFire(Position position) {
         usedPositions.add(position);
         this.lastFiredPosition = position;
