@@ -37,6 +37,16 @@ public class PositionedArea extends Area {
         return false;
     }
 
+    public boolean contains(PositionedArea other) {
+        Position otherPosition = other.getPosition();
+
+        return position.x <= otherPosition.x && position.y <= otherPosition.y && position.x + sizeX >= otherPosition.x + other.sizeX && position.y + sizeY >= otherPosition.y + other.sizeY;
+    }
+
+    public boolean contains(Position other) {
+        return position.x <= other.x && position.y <= other.y && position.x + sizeX <= other.x && position.y + sizeY <= other.y;
+    }
+
     /**
      * Returns the position anchoring the {@link PositionedArea}.
      *

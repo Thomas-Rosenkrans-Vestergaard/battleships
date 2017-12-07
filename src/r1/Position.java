@@ -97,6 +97,42 @@ public class Position extends battleship.interfaces.Position {
     }
 
     /**
+     * Returns the {@link Position} above <code>this</code>.
+     *
+     * @return The {@link Position} above <code>this</code>.
+     */
+    public Position top() {
+        return new Position(this.x, this.y + 1);
+    }
+
+    /**
+     * Returns the {@link Position} below <code>this</code>.
+     *
+     * @return The {@link Position} below <code>this</code>.
+     */
+    public Position bottom() {
+        return new Position(this.x, this.y - 1);
+    }
+
+    /**
+     * Returns the {@link Position} to the left of <code>this</code>.
+     *
+     * @return The {@link Position} to the left of <code>this</code>.
+     */
+    public Position left() {
+        return new Position(this.x - 1, this.y);
+    }
+
+    /**
+     * Returns the {@link Position} to the right of <code>this</code>.
+     *
+     * @return The {@link Position} to the right of <code>this</code>.
+     */
+    public Position right() {
+        return new Position(this.x + 1, this.y);
+    }
+
+    /**
      * Returns the index of the position on a board with the provided sizeX.
      *
      * @param sizeX The sizeX.

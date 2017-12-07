@@ -2,24 +2,25 @@ package r1.placement.placer;
 
 import battleship.interfaces.Board;
 import battleship.interfaces.Fleet;
-import battleship.interfaces.Position;
 import battleship.interfaces.Ship;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import r1.Position;
 import r1.PositionedArea;
 import r1.placement.PlacerComponentMemory;
 import r1.placement.ShipPlacement;
-import r1.placement.ShipPlacement.Rotation;
 
 public class RandomPlacer implements Placer {
 
     private final PlacerComponentMemory memory;
     private final Random random = new Random();
+    private final PositionedArea boardArea;
     private List<PositionedArea> placedShips;
 
     public RandomPlacer(PlacerComponentMemory memory) {
         this.memory = memory;
+        this.boardArea = new PositionedArea(memory.getSizeX(), memory.getSizeY(), new Position(0, 0));
     }
 
     @Override
@@ -44,19 +45,19 @@ public class RandomPlacer implements Placer {
         int randomY = random.nextInt(memory.getSizeY());
         boolean randomRotation = random.nextBoolean();
 
-        PositionedArea area;
+        PositionedArea possibleShipArea;
 
         if (randomRotation) {
-            area = new PositionedArea(1, ship.size(), new r1.Position(randomX, randomY));
+            possibleShipArea = new PositionedArea(1, ship.size(), new r1.Position(randomX, randomY));
         } else {
-            area = new PositionedArea(ship.size(), 1, new r1.Position(randomX, randomY));
+            possibleShipArea = new PositionedArea(ship.size(), 1, new r1.Position(randomX, randomY));
         }
 
-        if (area.overlaps(placedShips)) {
+        if (possibleShipArea.overlaps(placedShips) || !boardArea.contains(possibleShipArea)) {
             return getRandomShipPlacement(ship);
         }
 
-        placedShips.add(area);
-        return new ShipPlacement(ship, area.getPosition(), randomRotation);
+        placedShips.add(possibleShipArea);
+        return new ShipPlacement(ship, possibleShipArea.getPosition(), randomRotation);
     }
 }
