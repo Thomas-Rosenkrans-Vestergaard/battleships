@@ -2,6 +2,7 @@ package r1.shooting.shooter;
 
 import battleship.interfaces.Position;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Queue;
 import java.util.Stack;
 import r1.Position.Direction;
@@ -42,6 +43,8 @@ public class Hunter implements Shooter {
         Stack<Direction> directions = new Stack<>();
         r1.Position betterPosition = new r1.Position(position);
 
+        System.out.println("FINDING_DIRECTIONS");
+
         r1.Position top = betterPosition.top();
         if (memory.hasBeenFiredAt(top) || !top.inside(boardArea)) {
             directions.add(Direction.TOP);
@@ -58,7 +61,10 @@ public class Hunter implements Shooter {
         }
 
         r1.Position right = betterPosition.right();
-        if (memory.hasBeenFiredAt(right) || right.inside(boardArea)) {
+        System.out.println("Testing right=" + right);
+        System.out.println("hasBeen=" + memory.hasBeenFiredAt(right));
+        System.out.println("inside=" + !right.inside(boardArea));
+        if (memory.hasBeenFiredAt(right) || !right.inside(boardArea)) {
             directions.add(Direction.RIGHT);
         }
 
@@ -68,6 +74,7 @@ public class Hunter implements Shooter {
     @Override
     public Queue<Position> getFireQueue() {
 
+        System.out.println("getFireQueue=" + System.identityHashCode(this));
         System.out.println("STAGE=" + stage);
 
         if (stage == Stage.FIND_DIRECTION) {
@@ -83,13 +90,13 @@ public class Hunter implements Shooter {
 
     private Queue<Position> fireFindDirection() {
 
+        System.out.println("excluded=" + Arrays.toString(excludedDirections.toArray()));
         if (excludedDirections.size() == 4) {
             throw new IllegalStateException("Too many excluded directions.");
         }
 
         Queue<Position> fireQueue = new ArrayDeque<>();
         Direction nextDirection = getNextPossibleDirection();
-        System.out.println(nextDirection);
         Position position = initialPosition.getNeighbor(nextDirection);
         this.lastCheckedDirection = nextDirection;
         fireQueue.add(position);
@@ -136,7 +143,10 @@ public class Hunter implements Shooter {
         r1.Position position = currentFeedBack.getPosition();
         r1.Position neighbor = position.getNeighbor(lastCheckedDirection);
 
-        if (!neighbor.inside(boardArea) || memory.hasBeenFiredAt(position)) {
+        if (!neighbor.inside(boardArea) || memory.hasBeenFiredAt(neighbor)) {
+            System.out.println("USE INVERSE INSTEAD=" + neighbor);
+            System.out.println("notIsInside=" + !neighbor.inside(boardArea));
+            System.out.println("heaBeenFiredAt=" + memory.hasBeenFiredAt(neighbor));
             return inverseFollow();
         }
 
@@ -148,22 +158,29 @@ public class Hunter implements Shooter {
         Direction inverseDirection = lastCheckedDirection.inverse();
         r1.Position nextPosition = currentFeedBack.getPosition();
 
+        System.out.println("nextPosition=" + nextPosition);
         System.out.println("lastCheckedDirection=" + lastCheckedDirection);
         System.out.println("inverse=" + inverseDirection);
 
-        // TODO: Iterate specific number of times.
-        for(int x = 0; x < 6; x++) {
+        while (true) {
             r1.Position testPosition = nextPosition.getNeighbor(inverseDirection);
             System.out.println("testPosition=" + testPosition);
-            System.out.println("eval=" + (testPosition.inside(boardArea) && !memory.hasBeenFiredAt(testPosition)));
-            if (testPosition.inside(boardArea) && !memory.hasBeenFiredAt(testPosition)) {
-                nextPosition = testPosition;
-                break;
+            System.out.println("inside=" + testPosition.inside(boardArea));
+            System.out.println("fired=" + memory.hasBeenFiredAt(testPosition));
+            if (!testPosition.inside(boardArea)) {
+                throw new IllegalStateException();
             }
+
+            if (memory.hasBeenFiredAt(testPosition)) {
+                nextPosition = testPosition;
+                continue;
+            }
+
+            nextPosition = testPosition;
+            break;
         }
 
         Queue fireQueue = new ArrayDeque();
-        this.lastCheckedDirection = inverseDirection;
         fireQueue.add(nextPosition);
         return fireQueue;
     }
@@ -174,7 +191,7 @@ public class Hunter implements Shooter {
         this.currentFeedBack = feedback;
 
         System.out.println("Hunter:onFeedBack=");
-        System.out.println(feedback);
+        System.out.println("currentFeedBack=" + feedback);
         System.out.println("before=" + feedback.getPreviousEnemyFleet());
         System.out.println("after=" + feedback.getPreviousEnemyFleet());
         System.out.println("hash = " + System.identityHashCode(feedback.getPreviousEnemyFleet()) + ":" + System.identityHashCode(feedback.getCurrentEnemyFleet()));

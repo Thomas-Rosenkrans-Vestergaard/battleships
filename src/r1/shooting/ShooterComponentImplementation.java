@@ -43,7 +43,7 @@ public class ShooterComponentImplementation implements ShooterComponent {
         System.out.println(this);
         Shooter shooter = shooters.peek();
         System.out.println("numberOfShooters=" + shooters.size());
-        System.out.println("using=" + shooter.getClass().getName());
+        System.out.println("using=" + shooter.getClass().getName() + ":" + System.identityHashCode(shooter));
 
         if (shooter == null) {
             throw new IllegalStateException("No more shooters.");
@@ -51,16 +51,13 @@ public class ShooterComponentImplementation implements ShooterComponent {
 
         Queue<Position> fireQueue = shooter.getFireQueue();
         Position position = fireQueue.poll();
-        this.memory.setLastFiredPosition(position);
+        this.memory.onFire(position);
         this.previouslyUsedShooter = shooter;
         return position;
     }
 
     @Override
     public void hitFeedBack(boolean hit, Fleet enemyShips) {
-        System.out.println("hitFeedBack");
-        System.out.println("preEns=" + previousEnemyFleet.getNumberOfShips());
-        System.out.println("enemyShips=" + enemyShips.getNumberOfShips());
         Position position = memory.getLastFiredPosition();
         ShotFeedback feedback = new ShotFeedback(previouslyUsedShooter, position, hit, previousNumberOfShips, enemyShips.getNumberOfShips());
         Enumeration<Shooter> shootersEnumeration = shooters.elements();
@@ -79,6 +76,7 @@ public class ShooterComponentImplementation implements ShooterComponent {
 
     @Override
     public void startRound(int round) {
+        this.memory.reset();
         this.previousEnemyFleet = memory.getInitialFleet();
         this.previousNumberOfShips = this.previousEnemyFleet.getNumberOfShips();
         for (Shooter shooter : shooters) {

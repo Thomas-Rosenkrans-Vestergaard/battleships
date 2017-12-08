@@ -143,12 +143,32 @@ public class PositionTest {
         Position c = new Position(9, 0);
         Position d = new Position(0, 9);
         Position e = new Position(9, 9);
-    
+
         assertEquals(0, a.toIndex(10));
         assertEquals(1, b.toIndex(10));
         assertEquals(9, c.toIndex(10));
         assertEquals(90, d.toIndex(10));
         assertEquals(99, e.toIndex(10));
+
+    }
+    
+    @Test
+    public void testEquals(){
+        assertEquals(new battleship.interfaces.Position(2,6), new battleship.interfaces.Position(2, 6));
+    }
+
+    @Test
+    public void testInside() throws Exception {
+        PositionedArea area = new PositionedArea(5, 5, new Position(0, 0));
         
+        assertTrue(new Position(0, 0).inside(area));
+        assertTrue(new Position(0, 4).inside(area));
+        assertTrue(new Position(4, 4).inside(area));
+        assertTrue(new Position(4, 0).inside(area));
+
+        assertFalse(new Position(-1, -1).inside(area));
+        assertFalse(new Position(0, 5).inside(area));
+        assertFalse(new Position(5, 5).inside(area));
+        assertFalse(new Position(5, 0).inside(area));
     }
 }

@@ -10,56 +10,51 @@ import r1.heatmap.HeatMap;
 
 public class ShooterComponentMemory {
 
-    /**
-     * The size of the x-axis.
-     */
     public final int sizeX;
-
-    /**
-     * The size of the y-axis.
-     */
     public final int sizeY;
-
-    /**
-     * The number of rounds to be played.
-     */
     private final int numberOfRounds;
     private final Fleet initialEnemyFleet;
     private final int numberOfHeatMaps;
     private final int numberOfShips;
-    private final HeatMap hitHeatMap;
-    private final Map<Integer, HeatMap> shipHeatMaps = new HashMap<>();
-    private final Set<Position> usedPositions = new HashSet<>();
+
+    private HeatMap hitHeatMap;
+    private Map<Integer, HeatMap> shipHeatMaps = new HashMap<>();
+    private Set<Position> usedPositions = new HashSet<>();
     private Position lastFiredPosition;
-    private int currentRound;
+    private int currentRound = 0;
     private int remainingShots;
     private int lastShotNumber;
     private int currentHeatMapVersion = 0;
 
-    public ShooterComponentMemory(int numberOfRounds, Fleet fleet, int sizeX, int sizeY) {
-        this.sizeX = sizeX;
-        this.sizeY = sizeY;
+    public void reset() {
         this.remainingShots = sizeY * sizeX;
         this.lastShotNumber = 0;
-        this.numberOfShips = fleet.getNumberOfShips();
-        this.numberOfRounds = numberOfRounds;
-        this.numberOfHeatMaps = (int) (5 * Math.pow(2, Math.log10((double) numberOfRounds) - 1));;
         this.hitHeatMap = new HeatMap(sizeX, sizeY);
-        this.initialEnemyFleet = fleet;
+        this.usedPositions = new HashSet<Position>();
 
         for (int x = 0; x < this.numberOfShips; x++) {
-            int size = fleet.getShip(x).size();
+            int size = initialEnemyFleet.getShip(x).size();
             if (!shipHeatMaps.containsKey(size)) {
                 shipHeatMaps.put(size, new HeatMap(sizeX, sizeY));
             }
         }
+    }
+
+    public ShooterComponentMemory(int numberOfRounds, Fleet fleet, int sizeX, int sizeY) {
+        this.sizeX = sizeX;
+        this.sizeY = sizeY;
+        this.numberOfRounds = numberOfRounds;
+        this.initialEnemyFleet = fleet;
+        this.numberOfHeatMaps = (int) (5 * Math.pow(2, Math.log10((double) numberOfRounds) - 1));;
+        this.numberOfShips = fleet.getNumberOfShips();
+        reset();
 
     }
 
     public Fleet getInitialFleet() {
         return initialEnemyFleet;
     }
-    
+
     public int getNumberOfShips() {
         return numberOfShips;
     }
@@ -78,10 +73,6 @@ public class ShooterComponentMemory {
 
     public Position getLastFiredPosition() {
         return lastFiredPosition;
-    }
-
-    public void setLastFiredPosition(Position lastFiredPosition) {
-        this.lastFiredPosition = lastFiredPosition;
     }
 
     public void onFire(Position position) {

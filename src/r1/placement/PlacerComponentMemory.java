@@ -67,7 +67,7 @@ public class PlacerComponentMemory {
         System.out.println("numberOfHeatMaps:" + numberOfHeatMaps);
         this.remainingEnemyShots = sizeX * sizeY;
         this.currentRound = round;
-        if ((round - 1) % (numberOfRounds / numberOfHeatMaps) == 0) {
+        if ((round - 1) % Math.max(1, numberOfRounds / numberOfHeatMaps) == 0) {
             this.currentHeatMapVersion = incomingHeatMap.makeVersion(true);
             System.out.println("currentHeatMapVersion:" + this.currentHeatMapVersion);
         }

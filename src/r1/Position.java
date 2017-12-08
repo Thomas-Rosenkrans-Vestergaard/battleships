@@ -161,7 +161,10 @@ public class Position extends battleship.interfaces.Position {
     }
 
     public boolean inside(PositionedArea area) {
-        return this.x >= area.position.x && this.y >= area.position.y && this.x <= area.position.x + area.sizeX && this.y <= area.position.y + area.sizeY;
+        return this.x >= area.position.x
+                && this.y >= area.position.y
+                && this.x < area.position.x + area.sizeX
+                && this.y < area.position.y + area.sizeY;
     }
 
     /**

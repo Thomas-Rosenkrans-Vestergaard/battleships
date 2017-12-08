@@ -49,9 +49,11 @@ public class DiagonalsShooter implements Shooter {
     }
 
     @Override
-    public void onFeedBack(ShotFeedback feedBack) {
-        if (feedBack.wasHit() && !feedBack.sunkShip()) {
-            Shooter hunter = new Hunter(this.shooterComponent, memory, feedBack.getPosition());
+    public void onFeedBack(ShotFeedback feedback) {
+        System.out.println("DiagonalsShooter:onFeedBack=");
+        System.out.println("currentFeedBack=" + feedback);
+        if (feedback.wasHit() && !feedback.sunkShip()) {
+            Shooter hunter = new Hunter(this.shooterComponent, memory, feedback.getPosition());
             shooterComponent.pushShooter(hunter);
         }
     }
