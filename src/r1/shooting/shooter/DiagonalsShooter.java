@@ -1,6 +1,5 @@
 package r1.shooting.shooter;
 
-import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
 import java.util.ArrayDeque;
 import java.util.Queue;
@@ -17,11 +16,6 @@ public class DiagonalsShooter implements Shooter {
     public DiagonalsShooter(ShooterComponent component, ShooterComponentMemory memory) {
         this.shooterComponent = component;
         this.memory = memory;
-    }
-
-    @Override
-    public Queue<Position> getFireQueue() {
-        return fireQueue;
     }
 
     @Override
@@ -44,8 +38,8 @@ public class DiagonalsShooter implements Shooter {
     }
 
     @Override
-    public void endRound(int round, int points, int enemyPoints) {
-
+    public Position getFirePosition() {
+        return fireQueue.poll();
     }
 
     @Override
@@ -56,6 +50,11 @@ public class DiagonalsShooter implements Shooter {
             Shooter hunter = new Hunter(this.shooterComponent, memory, feedback.getPosition());
             shooterComponent.pushShooter(hunter);
         }
+    }
+
+    @Override
+    public void endRound(int round, int points, int enemyPoints) {
+
     }
 
     @Override

@@ -86,7 +86,7 @@ public class Position extends battleship.interfaces.Position {
     public Direction getDirectionTo(Position position) {
 
         if (this.x == position.x && this.y == position.y) {
-            return Direction.CENTER;
+            return null;
         }
 
         if (this.x == position.x) {
@@ -115,10 +115,6 @@ public class Position extends battleship.interfaces.Position {
 
         if (direction == Direction.RIGHT) {
             return right();
-        }
-
-        if (direction == Direction.CENTER) {
-            return this;
         }
 
         throw new UnsupportedOperationException();
@@ -184,7 +180,6 @@ public class Position extends battleship.interfaces.Position {
 
         TOP,
         BOTTOM,
-        CENTER,
         LEFT,
         RIGHT;
 
@@ -209,6 +204,44 @@ public class Position extends battleship.interfaces.Position {
 
             throw new UnsupportedOperationException();
 
+        }
+
+        public Direction nextClockwise() {
+            if (this == TOP) {
+                return RIGHT;
+            }
+            if (this == RIGHT) {
+                return BOTTOM;
+            }
+            if (this == BOTTOM) {
+                return LEFT;
+            }
+            if (this == LEFT) {
+                return TOP;
+            }
+
+            throw new UnsupportedOperationException();
+        }
+       
+
+        public Direction nextCounterClockwise() {
+            if (this == TOP) {
+                return LEFT;
+            }
+
+            if (this == LEFT) {
+                return BOTTOM;
+            }
+
+            if (this == BOTTOM) {
+                return RIGHT;
+            }
+
+            if (this == RIGHT) {
+                return TOP;
+            }
+
+            throw new UnsupportedOperationException();
         }
     }
 }

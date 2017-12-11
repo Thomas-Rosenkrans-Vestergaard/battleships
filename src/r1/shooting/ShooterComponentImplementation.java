@@ -3,19 +3,17 @@ package r1.shooting;
 import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.Queue;
 import java.util.Stack;
+import r1.FleetCopy;
 import r1.shooting.shooter.DiagonalsShooter;
-import r1.shooting.shooter.SequenceShooter;
 import r1.shooting.shooter.Shooter;
 
 public class ShooterComponentImplementation implements ShooterComponent {
 
     private final Stack<Shooter> shooters = new Stack<>();
     private final ShooterComponentMemory memory;
-    private Fleet previousEnemyFleet;
-    private int previousNumberOfShips;
+    private FleetCopy previousEnemyFleet;
     private Shooter previouslyUsedShooter;
 
     public ShooterComponentImplementation(ShooterComponentMemory memory) {
@@ -49,8 +47,7 @@ public class ShooterComponentImplementation implements ShooterComponent {
             throw new IllegalStateException("No more shooters.");
         }
 
-        Queue<Position> fireQueue = shooter.getFireQueue();
-        Position position = fireQueue.poll();
+        Position position = shooter.getFirePosition();
         this.memory.onFire(position);
         this.previouslyUsedShooter = shooter;
         return position;
@@ -59,7 +56,7 @@ public class ShooterComponentImplementation implements ShooterComponent {
     @Override
     public void hitFeedBack(boolean hit, Fleet enemyShips) {
         Position position = memory.getLastFiredPosition();
-        ShotFeedback feedback = new ShotFeedback(previouslyUsedShooter, position, hit, previousNumberOfShips, enemyShips.getNumberOfShips());
+        ShotFeedback feedback = new ShotFeedback(previouslyUsedShooter, position, hit, previousEnemyFleet, new FleetCopy(enemyShips));
         Enumeration<Shooter> shootersEnumeration = shooters.elements();
         while (shootersEnumeration.hasMoreElements()) {
             Shooter shooter = shootersEnumeration.nextElement();
@@ -70,15 +67,13 @@ public class ShooterComponentImplementation implements ShooterComponent {
             }
         }
 
-        this.previousEnemyFleet = enemyShips;
-        this.previousNumberOfShips = enemyShips.getNumberOfShips();
+        this.previousEnemyFleet = new FleetCopy(enemyShips);
     }
 
     @Override
     public void startRound(int round) {
         this.memory.reset();
-        this.previousEnemyFleet = memory.getInitialFleet();
-        this.previousNumberOfShips = this.previousEnemyFleet.getNumberOfShips();
+        this.previousEnemyFleet = new FleetCopy(memory.getInitialFleet());
         for (Shooter shooter : shooters) {
             shooter.startRound(round);
         }

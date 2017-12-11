@@ -6,6 +6,10 @@
 package r1.shooting;
 
 import battleship.interfaces.Fleet;
+import java.util.ArrayList;
+import java.util.List;
+import r1.EmptyFleetException;
+import r1.FleetCopy;
 import r1.Position;
 import r1.shooting.shooter.Shooter;
 
@@ -18,10 +22,10 @@ public class ShotFeedback {
     private final Shooter shooter;
     private final Position position;
     private final boolean hit;
-    private final int previousEnemyFleet;
-    private final int currentEnemyFleet;
+    private final FleetCopy previousEnemyFleet;
+    private final FleetCopy currentEnemyFleet;
 
-    public ShotFeedback(Shooter shooter, battleship.interfaces.Position position, boolean hit, int previousEnemyFleet, int currentEnemyFleet) {
+    public ShotFeedback(Shooter shooter, battleship.interfaces.Position position, boolean hit, FleetCopy previousEnemyFleet, FleetCopy currentEnemyFleet) {
         this.shooter = shooter;
         this.position = new Position(position);
         this.hit = hit;
@@ -30,7 +34,27 @@ public class ShotFeedback {
     }
 
     public boolean sunkShip() {
-        return previousEnemyFleet > currentEnemyFleet;
+        return previousEnemyFleet.getNumberOfShips() > currentEnemyFleet.getNumberOfShips();
+    }
+
+    public int getSunkShip() {
+        if (!sunkShip()) {
+            return -1;
+        }
+
+        try {
+
+            int longestShip = previousEnemyFleet.getLongestShip();
+            for (int x = 1; x <= longestShip; x++) {
+                if (previousEnemyFleet.getFrequency(x) > currentEnemyFleet.getFrequency(x)) {
+                    return x;
+                }
+            }
+
+            return -1;
+        } catch (EmptyFleetException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     public Position getPosition() {
@@ -45,11 +69,11 @@ public class ShotFeedback {
         return hit;
     }
 
-    public int getPreviousEnemyFleet() {
+    public FleetCopy getPreviousEnemyFleet() {
         return previousEnemyFleet;
     }
 
-    public int getCurrentEnemyFleet() {
+    public FleetCopy getCurrentEnemyFleet() {
         return currentEnemyFleet;
     }
 

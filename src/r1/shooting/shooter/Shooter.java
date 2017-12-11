@@ -1,9 +1,7 @@
 package r1.shooting.shooter;
 
 import battleship.interfaces.Position;
-import java.util.Queue;
 import r1.shooting.ShooterComponent;
-import r1.shooting.ShooterComponentMemory;
 import r1.shooting.ShotFeedback;
 
 public interface Shooter {
@@ -16,13 +14,11 @@ public interface Shooter {
     public ShooterComponent getShooterComponent();
 
     /**
-     * Returns the {@link Position}s to fire on. The {@link ShooterComponent}
-     * will select another {@link Shooter} when an empty {@link Queue} is
-     * returned.
+     * Returns the {@link Position}s to fire on.
      *
      * @return The {@link Position}s to fire on.
      */
-    public Queue<Position> getFireQueue();
+    public Position getFirePosition();
 
     /**
      * Provides the {@link Shooter} with {@link ShotFeedback} on its last fired

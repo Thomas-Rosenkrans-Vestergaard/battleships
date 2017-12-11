@@ -11,7 +11,7 @@ public class SequenceShooter implements Shooter {
 
     private final ShooterComponent shooterComponent;
     private final ShooterComponentMemory memory;
-    private final Queue fireQueue = new ArrayDeque();
+    private final Queue<Position> fireQueue = new ArrayDeque<>();
     private final int sizeX;
     private final int sizeY;
     private final int numberOfPositions;
@@ -48,8 +48,8 @@ public class SequenceShooter implements Shooter {
     }
 
     @Override
-    public Queue<Position> getFireQueue() {
-        return fireQueue;
+    public Position getFirePosition() {
+        return fireQueue.poll();
     }
 
     @Override
