@@ -1,7 +1,5 @@
 package r1;
 
-import battleship.interfaces.Board;
-
 public class Position extends battleship.interfaces.Position {
 
     /**
@@ -26,7 +24,7 @@ public class Position extends battleship.interfaces.Position {
      * @param position The other position.
      * @return The distance. Returns -1 if the two position don't share a line.
      */
-    public int distanceTo(Position position) {
+    public int distanceTo(battleship.interfaces.Position position) {
 
         if (this.x != position.x && this.y != position.y) {
             return -1;
@@ -50,7 +48,7 @@ public class Position extends battleship.interfaces.Position {
      * @return Whether or not the provided position and this shares a vertical
      * line.
      */
-    public boolean isVertical(Position position) {
+    public boolean isVertical(battleship.interfaces.Position position) {
         return this.x == position.x;
     }
 
@@ -61,7 +59,7 @@ public class Position extends battleship.interfaces.Position {
      * @return Whether or not the provided position and this shares a horizontal
      * line.
      */
-    public boolean isHorizontal(Position position) {
+    public boolean isHorizontal(battleship.interfaces.Position position) {
         return this.y == position.y;
     }
 
@@ -71,7 +69,7 @@ public class Position extends battleship.interfaces.Position {
      * @param position The provided position.
      * @return Whether or not the provided position and this shares a line.
      */
-    public boolean sharesLine(Position position) {
+    public boolean sharesLine(battleship.interfaces.Position position) {
         return this.x == position.x || this.y == position.y;
     }
 
@@ -83,7 +81,7 @@ public class Position extends battleship.interfaces.Position {
      * @return The direction to the provided position. Returns null if the two
      * points don't share a line.
      */
-    public Direction getDirectionTo(Position position) {
+    public Direction getDirectionTo(battleship.interfaces.Position position) {
 
         if (this.x == position.x && this.y == position.y) {
             return null;
@@ -222,7 +220,6 @@ public class Position extends battleship.interfaces.Position {
 
             throw new UnsupportedOperationException();
         }
-       
 
         public Direction nextCounterClockwise() {
             if (this == TOP) {
@@ -243,5 +240,15 @@ public class Position extends battleship.interfaces.Position {
 
             throw new UnsupportedOperationException();
         }
+    }
+
+    public boolean equals(Object other) {
+        if (!(other instanceof battleship.interfaces.Position)) {
+            return false;
+        }
+
+        battleship.interfaces.Position pos = (battleship.interfaces.Position) other;
+
+        return this.x == pos.x && this.y == pos.y;
     }
 }

@@ -1,22 +1,25 @@
 package r1.shooting.shooter;
 
 import battleship.interfaces.Position;
-import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Stack;
 import r1.Position.Direction;
 import r1.PositionedArea;
+import r1.placement.ShipPlacement;
 import r1.shooting.ShooterComponent;
 import r1.shooting.ShooterComponentMemory;
 import r1.shooting.ShotFeedback;
 
 public class Hunter implements Shooter {
 
-    public enum Stage {
+    public enum Mode {
         FIND_DIRECTION,
         FOLLOW_DIRECTION,
+        CLEANUP
     }
 
     private final ShooterComponent shooterComponent;
@@ -24,28 +27,19 @@ public class Hunter implements Shooter {
     private final PositionedArea boardArea;
     private final ShooterComponentMemory memory;
 
-    private final Map<Direction, Position> furthestDirectionPosition = new HashMap<>();
-
-    private Stage stage = Stage.FIND_DIRECTION;
+    private Mode mode = Mode.FIND_DIRECTION;
     private ShotFeedback currentFeedBack;
-
     private Stack<Direction> excludedDirections;
     private int numberOfHits = 1;
+    private Stack<r1.Position> positionsHit = new Stack<>();
 
-    public Hunter(ShooterComponent shooterComponent, ShooterComponentMemory memory, Position initialPosition) {
+    public Hunter(ShooterComponent shooterComponent, ShooterComponentMemory memory, r1.Position initialPosition) {
         this.shooterComponent = shooterComponent;
         this.initialPosition = new r1.Position(initialPosition.x, initialPosition.y);
         this.memory = memory;
         this.boardArea = new PositionedArea(memory.sizeX, memory.sizeY, new Position(0, 0));
         this.excludedDirections = getInitialExcludedDirections(initialPosition);
-        this.furthestDirectionPosition.put(Direction.TOP, initialPosition);
-        this.furthestDirectionPosition.put(Direction.BOTTOM, initialPosition);
-        this.furthestDirectionPosition.put(Direction.LEFT, initialPosition);
-        this.furthestDirectionPosition.put(Direction.RIGHT, initialPosition);
-
-//        if (memory.hasBeenFiredAt(initialPosition)) {
-//            this.numberOfHits = 1;
-//        }
+        this.positionsHit.add(initialPosition);
     }
 
     private Stack<Direction> getInitialExcludedDirections(Position position) {
@@ -81,11 +75,17 @@ public class Hunter implements Shooter {
 
         System.out.println(this);
 
-        if (stage == Stage.FIND_DIRECTION) {
+        if (mode == Mode.CLEANUP) {
+            Direction nextDirection = getNextPossibleDirection();
+            Position nextPosition = initialPosition.getNeighbor(nextDirection);
+            return nextPosition;
+        }
+
+        if (mode == Mode.FIND_DIRECTION) {
             return excludeDirections();
         }
 
-        if (stage == Stage.FOLLOW_DIRECTION) {
+        if (mode == Mode.FOLLOW_DIRECTION) {
             return followDirection();
         }
 
@@ -117,7 +117,7 @@ public class Hunter implements Shooter {
 
         if (!nextPosition.inside(boardArea) || memory.hasBeenFiredAt(nextPosition)) {
             this.excludedDirections.add(direction);
-            System.out.println("USE CHANGE INSTEAD=" + nextPosition);
+            System.out.println("USE CHANGE INSTEAD=" + position);
             System.out.println("notIsInside=" + !nextPosition.inside(boardArea));
             System.out.println("heaBeenFiredAt=" + memory.hasBeenFiredAt(nextPosition));
             return changeFollowDirection();
@@ -132,32 +132,34 @@ public class Hunter implements Shooter {
 
         Direction direction = getNextPossibleDirection();
 
-        r1.Position nextPosition = currentFeedBack.getPosition();
+        r1.Position position = currentFeedBack.getPosition();
 
-        System.out.println("nextPosition=" + nextPosition);
+        System.out.println("nextPosition=" + position);
         System.out.println("inverse=" + direction);
 
+        System.out.println("used=" + Arrays.toString(memory.getUsedPositions().toArray()));
+        
         while (true) {
-            r1.Position testPosition = nextPosition.getNeighbor(direction);
+            
+            r1.Position testPosition = position.getNeighbor(direction);
             System.out.println("testPosition=" + testPosition);
             System.out.println("inside=" + testPosition.inside(boardArea));
             System.out.println("fired=" + memory.hasBeenFiredAt(testPosition));
+
             if (!testPosition.inside(boardArea)) {
                 throw new IllegalStateException();
             }
-
-            if (memory.hasBeenFiredAt(testPosition)) {
-                nextPosition = testPosition;
-                continue;
+            
+            if (!memory.hasBeenFiredAt(testPosition)) {
+                return testPosition;
             }
-
-            nextPosition = testPosition;
-            break;
+            
+            position = testPosition;
         }
 
-        System.out.println("nextPosition=" + nextPosition);
 
-        return nextPosition;
+
+
     }
 
     private Direction getNextPossibleDirection() {
@@ -181,11 +183,14 @@ public class Hunter implements Shooter {
         throw new IllegalStateException("No next direction.");
     }
 
+    public boolean canFire() {
+        return this.excludedDirections.size() != 4;
+    }
+
     @Override
     public void onFeedBack(ShotFeedback feedback) {;
 
-        Position position = feedback.getPosition();
-        Direction direction = initialPosition.getDirectionTo(position);
+        r1.Position position = feedback.getPosition();
 
         System.out.println("before=" + feedback.getPreviousEnemyFleet().getNumberOfShips());
         System.out.println("after=" + feedback.getCurrentEnemyFleet().getNumberOfShips());
@@ -195,11 +200,9 @@ public class Hunter implements Shooter {
 
         if (feedback.wasHit()) {
             this.numberOfHits++;
-            this.furthestDirectionPosition.put(direction, position);
+            this.positionsHit.add(position);
             System.out.println("numberOFHITS=" + this.numberOfHits);
-        }
-
-        if (!feedback.wasHit()) {
+        } else {
             this.excludedDirections.add(initialPosition.getDirectionTo(feedback.getPosition()));
         }
 
@@ -210,26 +213,37 @@ public class Hunter implements Shooter {
                 throw new IllegalStateException("sunkShip == -1");
             }
 
-            this.shooterComponent.removeShooter(this);
-
-            System.out.println("sunkShip=" + sunkShip);
-            System.out.println("numberOfHits=" + numberOfHits);
-
             if (sunkShip != numberOfHits) {
-                Hunter newHunter = new Hunter(shooterComponent, memory, initialPosition);
-                this.shooterComponent.pushShooter(newHunter);
+
+                Collection<Position> shipPositions = new Stack<>();
+                r1.Position currentShipPosition = feedback.getPosition();
+                Direction direction = currentShipPosition.getDirectionTo(initialPosition);
+                for (int x = 0; x < sunkShip; x++) {
+                    shipPositions.add(currentShipPosition);
+                    currentShipPosition = currentShipPosition.getNeighbor(direction);
+                }
+
+                for (r1.Position hit : positionsHit) {
+                    if (!shipPositions.contains(hit)) {
+                        Hunter hunter = new Hunter(shooterComponent, memory, hit);
+                        System.out.println("ADDED HUNTER AT " + hit);
+                        this.shooterComponent.pushShooter(hunter);
+                    }
+                }
             }
 
+            this.shooterComponent.removeShooter(this);
+
             return;
         }
 
-        if (stage == Stage.FIND_DIRECTION && feedback.wasHit()) {
-            this.stage = Stage.FOLLOW_DIRECTION;
+        if (mode == Mode.FIND_DIRECTION && feedback.wasHit()) {
+            this.mode = Mode.FOLLOW_DIRECTION;
             return;
         }
 
-        if (stage == Stage.FOLLOW_DIRECTION && !feedback.wasHit()) {
-            this.stage = Stage.FIND_DIRECTION;
+        if (mode == Mode.FOLLOW_DIRECTION && !feedback.wasHit()) {
+            this.mode = Mode.FIND_DIRECTION;
         }
     }
 
@@ -255,7 +269,6 @@ public class Hunter implements Shooter {
 
     @Override
     public String toString() {
-        return "Hunter{" + "shooterComponent=" + shooterComponent + ", initialPosition=" + initialPosition + ", boardArea=" + boardArea + ", memory=" + memory + ", furthestDirectionPosition=" + furthestDirectionPosition + ", stage=" + stage + ", currentFeedBack=" + currentFeedBack + ", excludedDirections=" + excludedDirections + ", numberOfHits=" + numberOfHits + '}';
+        return "Hunter{" + "shooterComponent=" + shooterComponent + ", initialPosition=" + initialPosition + ", boardArea=" + boardArea + ", memory=" + memory + ", mode=" + mode + ", currentFeedBack=" + currentFeedBack + ", excludedDirections=" + excludedDirections + ", numberOfHits=" + numberOfHits + '}';
     }
-
 }

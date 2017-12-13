@@ -15,6 +15,7 @@ public class ShooterComponentImplementation implements ShooterComponent {
     private final ShooterComponentMemory memory;
     private FleetCopy previousEnemyFleet;
     private Shooter previouslyUsedShooter;
+    private int numberOfShots = 0;
 
     public ShooterComponentImplementation(ShooterComponentMemory memory) {
 
@@ -47,6 +48,11 @@ public class ShooterComponentImplementation implements ShooterComponent {
             throw new IllegalStateException("No more shooters.");
         }
 
+        if (!shooter.canFire()) {
+            shooters.pop();
+            return getFireCoordinates(enemyShips);
+        }
+
         Position position = shooter.getFirePosition();
         this.memory.onFire(position);
         this.previouslyUsedShooter = shooter;
@@ -66,6 +72,8 @@ public class ShooterComponentImplementation implements ShooterComponent {
                 shooter.onSecondaryFeedBack(feedback);
             }
         }
+
+        this.numberOfShots++;
 
         this.previousEnemyFleet = new FleetCopy(enemyShips);
     }
@@ -88,6 +96,6 @@ public class ShooterComponentImplementation implements ShooterComponent {
 
     @Override
     public void endMatch(int won, int lost, int draw) {
-
+        System.out.println("AVG SHOTS=" + this.numberOfShots / (won + lost + draw));
     }
 }

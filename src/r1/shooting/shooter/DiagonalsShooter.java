@@ -2,6 +2,9 @@ package r1.shooting.shooter;
 
 import battleship.interfaces.Position;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Queue;
 import r1.shooting.ShooterComponent;
 import r1.shooting.ShooterComponentMemory;
@@ -19,9 +22,14 @@ public class DiagonalsShooter implements Shooter {
     }
 
     @Override
+    public boolean canFire() {
+        return true;
+    }
+
+    @Override
     public void startRound(int round) {
 
-        fireQueue = new ArrayDeque<>();
+        List<Position> fireQueue = new ArrayList<>();
 
         for (int i = 4; i > 0; i -= 2) {
             for (int x = 0; x < memory.sizeX; x++) {
@@ -35,6 +43,9 @@ public class DiagonalsShooter implements Shooter {
                 }
             }
         }
+
+        Collections.shuffle(fireQueue);
+        this.fireQueue = new ArrayDeque<>(fireQueue);
     }
 
     @Override

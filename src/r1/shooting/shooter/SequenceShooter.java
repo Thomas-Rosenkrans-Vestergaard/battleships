@@ -25,6 +25,11 @@ public class SequenceShooter implements Shooter {
     }
 
     @Override
+    public boolean canFire() {
+        return true;
+    }
+
+    @Override
     public void startRound(int round) {
         fireQueue.clear();
         for (int index = 0; index < numberOfPositions; index++) {

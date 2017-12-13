@@ -13,6 +13,8 @@ public interface Shooter {
      */
     public ShooterComponent getShooterComponent();
 
+    public boolean canFire();
+    
     /**
      * Returns the {@link Position}s to fire on.
      *

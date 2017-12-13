@@ -71,12 +71,17 @@ public class ShooterComponentMemory {
         return usedPositions.contains(position);
     }
 
+    public Set<Position> getUsedPositions() {
+        return usedPositions;
+    }
+
     public Position getLastFiredPosition() {
         return lastFiredPosition;
     }
 
     public void onFire(Position position) {
         usedPositions.add(position);
+        System.out.println("FIRED AT " + position);
         this.lastFiredPosition = position;
         this.lastShotNumber++;
         this.remainingShots--;
