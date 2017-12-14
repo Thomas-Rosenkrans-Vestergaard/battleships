@@ -2,12 +2,15 @@ package r1.shooting;
 
 import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
+import battleship.interfaces.Ship;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import r1.DensityCalculator;
 import r1.FleetCopy;
 import r1.heatmap.HeatMap;
+import r1.heatmap.HeatMapView;
 
 public class ShooterComponentMemory {
 
@@ -27,19 +30,28 @@ public class ShooterComponentMemory {
     private int remainingShots;
     private int lastShotNumber;
     private int currentHeatMapVersion = 0;
+    private DensityCalculator densityCalculator;
 
     public void reset() {
         this.remainingShots = sizeY * sizeX;
         this.lastShotNumber = 0;
         this.hitHeatMap = new HeatMap(sizeX, sizeY);
         this.usedPositions = new HashSet<Position>();
+        this.densityCalculator = new DensityCalculator();
+        for (int x = 0; x < this.initialEnemyFleet.getNumberOfShips(); x++) {
+            this.densityCalculator.addShip(this.initialEnemyFleet.getShip(x).size());
+        }
 
-        for (int x = 0; x < this.numberOfShips; x++) {
+        for (int x = 0;
+                x
+                < this.numberOfShips;
+                x++) {
             int size = initialEnemyFleet.getShip(x).size();
             if (!shipHeatMaps.containsKey(size)) {
                 shipHeatMaps.put(size, new HeatMap(sizeX, sizeY));
             }
         }
+
     }
 
     public ShooterComponentMemory(int numberOfRounds, Fleet fleet, int sizeX, int sizeY) {
@@ -50,8 +62,19 @@ public class ShooterComponentMemory {
         this.currentEnemyFleet = new FleetCopy(fleet);
         this.numberOfHeatMaps = (int) (5 * Math.pow(2, Math.log10((double) numberOfRounds) - 1));;
         this.numberOfShips = fleet.getNumberOfShips();
-        reset();
 
+        reset();
+    }
+
+    public HeatMapView getDensityView() {
+        try {
+            HeatMap hm = new HeatMap(sizeX, sizeY);
+            hm.makeVersion(true);
+            this.densityCalculator.calculate(hm);
+            return hm.getActiveVersion();
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     public FleetCopy getInitialFleet() {
@@ -69,8 +92,6 @@ public class ShooterComponentMemory {
     public void setCurrentEnemyFleet(FleetCopy currentEnemyFleet) {
         this.currentEnemyFleet = currentEnemyFleet;
     }
-    
-    
 
     public HeatMap getHitHeatMap() {
         return hitHeatMap;
@@ -93,11 +114,16 @@ public class ShooterComponentMemory {
     }
 
     public void onFire(Position position) {
-        usedPositions.add(position);
-        System.out.println("FIRED AT " + position);
-        this.lastFiredPosition = position;
-        this.lastShotNumber++;
-        this.remainingShots--;
+        try {
+            usedPositions.add(position);
+            System.out.println("FIRED AT " + position);
+            this.lastFiredPosition = position;
+            this.lastShotNumber++;
+            this.remainingShots--;
+            this.densityCalculator.addBlocker(position);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     public int getSizeX() {

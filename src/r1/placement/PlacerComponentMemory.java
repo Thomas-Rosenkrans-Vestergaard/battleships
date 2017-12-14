@@ -62,14 +62,10 @@ public class PlacerComponentMemory {
      * @param round int the current round number.
      */
     public void startRound(int round) {
-        System.out.println("startRound:" + round);
-        System.out.println("numberOfRounds:" + numberOfRounds);
-        System.out.println("numberOfHeatMaps:" + numberOfHeatMaps);
         this.remainingEnemyShots = sizeX * sizeY;
         this.currentRound = round;
         if ((round - 1) % Math.max(1, numberOfRounds / numberOfHeatMaps) == 0) {
             this.currentHeatMapVersion = incomingHeatMap.makeVersion(true);
-            System.out.println("currentHeatMapVersion:" + this.currentHeatMapVersion);
         }
     }
 

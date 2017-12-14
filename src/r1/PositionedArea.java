@@ -2,6 +2,8 @@ package r1;
 
 import java.util.List;
 import battleship.interfaces.Position;
+import java.util.ArrayList;
+import java.util.Collection;
 
 public class PositionedArea extends Area {
 
@@ -10,6 +12,8 @@ public class PositionedArea extends Area {
      * is the lowest-left square of the area.
      */
     public final Position position;
+
+    private Collection<r1.Position> positions;
 
     /**
      * Creates a new {@link PositionedArea}.
@@ -44,6 +48,16 @@ public class PositionedArea extends Area {
         return position.x <= otherPosition.x && position.y <= otherPosition.y && position.x + sizeX >= otherPosition.x + other.sizeX && position.y + sizeY >= otherPosition.y + other.sizeY;
     }
 
+    public boolean containsAny(Iterable<? extends Position> positions) {
+        for (Position position : positions) {
+            if (this.position.x <= position.x && this.position.y <= position.y && this.position.x + this.sizeX >= position.x + 1 && this.position.y + this.sizeY >= position.y + 1) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public boolean contains(Position other) {
         return position.x <= other.x && position.y <= other.y && position.x + sizeX <= other.x && position.y + sizeY <= other.y;
     }
@@ -55,6 +69,20 @@ public class PositionedArea extends Area {
      */
     public Position getPosition() {
         return position;
+    }
+
+    public Collection<? extends r1.Position> getPositions() {
+
+        if (this.positions == null) {
+            this.positions = new ArrayList<>();
+            for (int x = this.position.x; x < this.position.x + this.sizeX; x++) {
+                for (int y = this.position.y; y < this.position.y + this.sizeY; y++) {
+                    positions.add(new r1.Position(x, y));
+                }
+            }
+        }
+
+        return positions;
     }
 
     @Override

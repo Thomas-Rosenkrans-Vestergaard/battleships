@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package r1;
 
 import battleship.interfaces.BattleshipsPlayer;
@@ -16,10 +12,6 @@ import r1.shooting.ShooterComponent;
 import r1.shooting.ShooterComponentImplementation;
 import r1.shooting.ShooterComponentMemory;
 
-/**
- *
- * @author Tobias
- */
 public class AI implements BattleshipsPlayer {
 
     private PlacerComponent placerComponent;
@@ -36,8 +28,13 @@ public class AI implements BattleshipsPlayer {
      */
     @Override
     public void startMatch(int rounds, Fleet ships, int sizeX, int sizeY) {
-        this.placerComponent = buildPlacerComponent(rounds, ships, sizeX, sizeY);
-        this.shooterComponent = buildShooterCompoment(rounds, ships, sizeX, sizeY);
+        try {
+            this.placerComponent = buildPlacerComponent(rounds, ships, sizeX, sizeY);
+            this.shooterComponent = buildShooterComponent(rounds, ships, sizeX, sizeY);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(0);
+        }
     }
 
     @Override
@@ -89,9 +86,13 @@ public class AI implements BattleshipsPlayer {
     @Override
     public void startRound(int round) {
         try {
+            System.out.println("startRound:" + round);
+            System.out.println("placer=" + placerComponent);
+            System.out.println("shootercomponent=" + shooterComponent);
             placerComponent.startRound(round);
             shooterComponent.startRound(round);
         } catch (Exception e) {
+            System.out.println("E");
             e.printStackTrace();
             System.exit(0);
         }
@@ -145,7 +146,7 @@ public class AI implements BattleshipsPlayer {
         return new PlacerComponentImplementation(placerComponentMemory);
     }
 
-    private ShooterComponent buildShooterCompoment(int rounds, Fleet ships, int sizeX, int sizeY) {
+    private ShooterComponent buildShooterComponent(int rounds, Fleet ships, int sizeX, int sizeY) {
         ShooterComponentMemory shooterComponentMemory = new ShooterComponentMemory(rounds, ships, sizeX, sizeY);
         return new ShooterComponentImplementation(shooterComponentMemory);
     }

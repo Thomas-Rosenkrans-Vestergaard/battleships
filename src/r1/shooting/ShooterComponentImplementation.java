@@ -3,7 +3,6 @@ package r1.shooting;
 import battleship.interfaces.Fleet;
 import battleship.interfaces.Position;
 import java.util.Enumeration;
-import java.util.Queue;
 import java.util.Stack;
 import r1.FleetCopy;
 import r1.shooting.shooter.DiagonalsShooter;
@@ -81,6 +80,7 @@ public class ShooterComponentImplementation implements ShooterComponent {
     
     @Override
     public void startRound(int round) {
+        System.out.println("shooterStartRound");
         this.memory.reset();
         this.previousEnemyFleet = memory.getInitialFleet();
         this.memory.setCurrentEnemyFleet(memory.getInitialFleet());

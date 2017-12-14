@@ -32,6 +32,10 @@ public class Area {
         this.sizeY = sizeY;
     }
 
+    public PositionedArea position(Position position) {
+        return new PositionedArea(this.sizeX, this.sizeY, position);
+    }
+
     /**
      * Returns the size of the {@link Area} on the x-axis.
      *
