@@ -38,6 +38,10 @@ public class FleetCopy implements Iterable {
         }
     }
 
+    public Ship getShip(int index) {
+        return this.ships.get(index);
+    }
+
     public int getFrequency(int size) {
         return frequency.getOrDefault(size, 0);
     }

@@ -10,31 +10,31 @@ import r1.shooting.shooter.DiagonalsShooter;
 import r1.shooting.shooter.Shooter;
 
 public class ShooterComponentImplementation implements ShooterComponent {
-
+    
     private final Stack<Shooter> shooters = new Stack<>();
     private final ShooterComponentMemory memory;
     private FleetCopy previousEnemyFleet;
     private Shooter previouslyUsedShooter;
     private int numberOfShots = 0;
-
+    
     public ShooterComponentImplementation(ShooterComponentMemory memory) {
-
+        
         System.out.println("CONSTRUCOTR");
         this.memory = memory;
         this.shooters.add(new DiagonalsShooter(this, memory));
         //this.shooters.add(new SequenceShooter(this, memory));
     }
-
+    
     @Override
     public void pushShooter(Shooter shooter) {
         this.shooters.push(shooter);
     }
-
+    
     @Override
     public void removeShooter(Shooter shooter) {
         this.shooters.remove(shooter);
     }
-
+    
     @Override
     public Position getFireCoordinates(Fleet enemyShips) {
         System.out.println("getFireCoordinates");
@@ -43,24 +43,25 @@ public class ShooterComponentImplementation implements ShooterComponent {
         Shooter shooter = shooters.peek();
         System.out.println("numberOfShooters=" + shooters.size());
         System.out.println("using=" + shooter.getClass().getName() + ":" + System.identityHashCode(shooter));
-
+        
         if (shooter == null) {
             throw new IllegalStateException("No more shooters.");
         }
-
+        
         if (!shooter.canFire()) {
             shooters.pop();
             return getFireCoordinates(enemyShips);
         }
-
+        
         Position position = shooter.getFirePosition();
         this.memory.onFire(position);
         this.previouslyUsedShooter = shooter;
         return position;
     }
-
+    
     @Override
     public void hitFeedBack(boolean hit, Fleet enemyShips) {
+        this.memory.setCurrentEnemyFleet(new FleetCopy(enemyShips));
         Position position = memory.getLastFiredPosition();
         ShotFeedback feedback = new ShotFeedback(previouslyUsedShooter, position, hit, previousEnemyFleet, new FleetCopy(enemyShips));
         Enumeration<Shooter> shootersEnumeration = shooters.elements();
@@ -72,28 +73,29 @@ public class ShooterComponentImplementation implements ShooterComponent {
                 shooter.onSecondaryFeedBack(feedback);
             }
         }
-
+        
         this.numberOfShots++;
-
+        
         this.previousEnemyFleet = new FleetCopy(enemyShips);
     }
-
+    
     @Override
     public void startRound(int round) {
         this.memory.reset();
-        this.previousEnemyFleet = new FleetCopy(memory.getInitialFleet());
+        this.previousEnemyFleet = memory.getInitialFleet();
+        this.memory.setCurrentEnemyFleet(memory.getInitialFleet());
         for (Shooter shooter : shooters) {
             shooter.startRound(round);
         }
     }
-
+    
     @Override
     public void endRound(int round, int points, int enemyPoints) {
         for (Shooter shooter : shooters) {
             shooter.endRound(round, points, enemyPoints);
         }
     }
-
+    
     @Override
     public void endMatch(int won, int lost, int draw) {
         System.out.println("AVG SHOTS=" + this.numberOfShots / (won + lost + draw));

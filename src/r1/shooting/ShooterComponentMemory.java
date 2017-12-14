@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import r1.FleetCopy;
 import r1.heatmap.HeatMap;
 
 public class ShooterComponentMemory {
@@ -13,10 +14,11 @@ public class ShooterComponentMemory {
     public final int sizeX;
     public final int sizeY;
     private final int numberOfRounds;
-    private final Fleet initialEnemyFleet;
+    private final FleetCopy initialEnemyFleet;
     private final int numberOfHeatMaps;
     private final int numberOfShips;
 
+    private FleetCopy currentEnemyFleet;
     private HeatMap hitHeatMap;
     private Map<Integer, HeatMap> shipHeatMaps = new HashMap<>();
     private Set<Position> usedPositions = new HashSet<>();
@@ -44,20 +46,31 @@ public class ShooterComponentMemory {
         this.sizeX = sizeX;
         this.sizeY = sizeY;
         this.numberOfRounds = numberOfRounds;
-        this.initialEnemyFleet = fleet;
+        this.initialEnemyFleet = new FleetCopy(fleet);
+        this.currentEnemyFleet = new FleetCopy(fleet);
         this.numberOfHeatMaps = (int) (5 * Math.pow(2, Math.log10((double) numberOfRounds) - 1));;
         this.numberOfShips = fleet.getNumberOfShips();
         reset();
 
     }
 
-    public Fleet getInitialFleet() {
+    public FleetCopy getInitialFleet() {
         return initialEnemyFleet;
     }
 
     public int getNumberOfShips() {
         return numberOfShips;
     }
+
+    public FleetCopy getCurrentEnemyFleet() {
+        return currentEnemyFleet;
+    }
+
+    public void setCurrentEnemyFleet(FleetCopy currentEnemyFleet) {
+        this.currentEnemyFleet = currentEnemyFleet;
+    }
+    
+    
 
     public HeatMap getHitHeatMap() {
         return hitHeatMap;

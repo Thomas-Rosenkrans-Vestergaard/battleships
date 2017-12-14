@@ -3,13 +3,9 @@ package r1.shooting.shooter;
 import battleship.interfaces.Position;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 import r1.Position.Direction;
 import r1.PositionedArea;
-import r1.placement.ShipPlacement;
 import r1.shooting.ShooterComponent;
 import r1.shooting.ShooterComponentMemory;
 import r1.shooting.ShotFeedback;
@@ -113,10 +109,11 @@ public class Hunter implements Shooter {
 
         r1.Position position = currentFeedBack.getPosition();
         Direction direction = this.initialPosition.getDirectionTo(position);
+        System.out.println("continue=" + direction);
         r1.Position nextPosition = position.getNeighbor(direction);
 
         if (!nextPosition.inside(boardArea) || memory.hasBeenFiredAt(nextPosition)) {
-            this.excludedDirections.add(direction);
+
             System.out.println("USE CHANGE INSTEAD=" + position);
             System.out.println("notIsInside=" + !nextPosition.inside(boardArea));
             System.out.println("heaBeenFiredAt=" + memory.hasBeenFiredAt(nextPosition));
@@ -135,13 +132,13 @@ public class Hunter implements Shooter {
         r1.Position position = currentFeedBack.getPosition();
 
         System.out.println("nextPosition=" + position);
-        System.out.println("inverse=" + direction);
+        System.out.println("nextDirection=" + direction);
 
         System.out.println("used=" + Arrays.toString(memory.getUsedPositions().toArray()));
-        
+
         while (true) {
-            
-            r1.Position testPosition = position.getNeighbor(direction);
+
+            r1.Position testPosition = this.initialPosition.getNeighbor(direction);
             System.out.println("testPosition=" + testPosition);
             System.out.println("inside=" + testPosition.inside(boardArea));
             System.out.println("fired=" + memory.hasBeenFiredAt(testPosition));
@@ -149,17 +146,13 @@ public class Hunter implements Shooter {
             if (!testPosition.inside(boardArea)) {
                 throw new IllegalStateException();
             }
-            
+
             if (!memory.hasBeenFiredAt(testPosition)) {
                 return testPosition;
             }
-            
+
             position = testPosition;
         }
-
-
-
-
     }
 
     private Direction getNextPossibleDirection() {
@@ -190,59 +183,60 @@ public class Hunter implements Shooter {
     @Override
     public void onFeedBack(ShotFeedback feedback) {;
 
+        this.currentFeedBack = feedback;
         r1.Position position = feedback.getPosition();
+        Direction direction = initialPosition.getDirectionTo(position);
+
+        if (feedback.wasHit()) {
+            this.numberOfHits++;
+            this.positionsHit.add(position);
+        }
+
+        r1.Position followPosition = position.getNeighbor(direction);
+        if (!feedback.wasHit() || !followPosition.inside(boardArea) || this.memory.hasBeenFiredAt(followPosition)) {
+            this.excludedDirections.add(direction);
+        }
 
         System.out.println("before=" + feedback.getPreviousEnemyFleet().getNumberOfShips());
         System.out.println("after=" + feedback.getCurrentEnemyFleet().getNumberOfShips());
         System.out.println("sunkShip=" + feedback.sunkShip());
 
-        this.currentFeedBack = feedback;
-
-        if (feedback.wasHit()) {
-            this.numberOfHits++;
-            this.positionsHit.add(position);
-            System.out.println("numberOFHITS=" + this.numberOfHits);
-        } else {
-            this.excludedDirections.add(initialPosition.getDirectionTo(feedback.getPosition()));
-        }
-
         if (feedback.sunkShip()) {
-            int sunkShip = feedback.getSunkShip();
 
-            if (sunkShip == -1) {
-                throw new IllegalStateException("sunkShip == -1");
+            int sunkShip = feedback.getSunkShip();
+            this.excludedDirections.add(direction);
+            Collection<Position> shipPositions = new Stack<>();
+            r1.Position currentShipPosition = feedback.getPosition();
+            for (int x = 0; x < sunkShip; x++) {
+                shipPositions.add(currentShipPosition);
+                currentShipPosition = currentShipPosition.getNeighbor(direction.inverse());
             }
 
-            if (sunkShip != numberOfHits) {
+            System.out.println("SHIP_POSITIONS=" + shipPositions);
+            System.out.println("INITIAL_POS=" + initialPosition);
 
-                Collection<Position> shipPositions = new Stack<>();
-                r1.Position currentShipPosition = feedback.getPosition();
-                Direction direction = currentShipPosition.getDirectionTo(initialPosition);
-                for (int x = 0; x < sunkShip; x++) {
-                    shipPositions.add(currentShipPosition);
-                    currentShipPosition = currentShipPosition.getNeighbor(direction);
-                }
+            if (this.numberOfHits != sunkShip) {
 
                 for (r1.Position hit : positionsHit) {
                     if (!shipPositions.contains(hit)) {
-                        Hunter hunter = new Hunter(shooterComponent, memory, hit);
                         System.out.println("ADDED HUNTER AT " + hit);
+                        Hunter hunter = new Hunter(shooterComponent, memory, hit);
                         this.shooterComponent.pushShooter(hunter);
                     }
                 }
             }
-
+            
             this.shooterComponent.removeShooter(this);
-
-            return;
         }
 
-        if (mode == Mode.FIND_DIRECTION && feedback.wasHit()) {
+        if (mode == Mode.FIND_DIRECTION
+                && feedback.wasHit()) {
             this.mode = Mode.FOLLOW_DIRECTION;
             return;
         }
 
-        if (mode == Mode.FOLLOW_DIRECTION && !feedback.wasHit()) {
+        if (mode == Mode.FOLLOW_DIRECTION
+                && !feedback.wasHit()) {
             this.mode = Mode.FIND_DIRECTION;
         }
     }
